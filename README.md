@@ -14,7 +14,7 @@
 <br />
 <div align="center">
 
-  <h3 align="center">Kaweelze</h3>
+  <h3 align="center">Kaweezle</h3>
 
   <p align="center">
     An awesome README template to jumpstart your projects!
@@ -128,7 +128,7 @@ following command:
 To install kaweezle, issue the following command:
 
 ```console
-> scoop install kaweezele
+> scoop install kaweezlee
 ```
 
 **TODO**: Put instructions with chocolatey.

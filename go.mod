@@ -1,4 +1,4 @@
-module github.com/antoinemartin/kaweezel
+module github.com/antoinemartin/kaweezle
 
 go 1.17
 
@@ -8,6 +8,7 @@ require (
 	github.com/spf13/cobra v1.2.1
 	github.com/spf13/viper v1.10.0
 	github.com/yuk7/wsllib-go v1.0.0
+	github.com/mattn/go-colorable v0.1.12
 )
 
 require (
@@ -16,6 +17,7 @@ require (
 	github.com/inconshreveable/mousetrap v1.0.0 // indirect
 	github.com/kr/text v0.2.0 // indirect
 	github.com/magiconair/properties v1.8.5 // indirect
+	github.com/mattn/go-isatty v0.0.14 // indirect
 	github.com/mitchellh/mapstructure v1.4.3 // indirect
 	github.com/niemeyer/pretty v0.0.0-20200227124842-a10e7caefd8e // indirect
 	github.com/pelletier/go-toml v1.9.4 // indirect

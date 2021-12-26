@@ -20,6 +20,7 @@ import (
 	"io"
 	"os"
 
+	"github.com/mattn/go-colorable"
 	"github.com/pkg/errors"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
@@ -28,14 +29,15 @@ import (
 )
 
 var (
-	cfgFile  string
-	v        string
-	jsonLogs bool
+	cfgFile          string
+	LogLevel         string
+	JsonLogs         bool
+	DistributionName string
 )
 
 // rootCmd represents the base command when called without any subcommands
 var rootCmd = &cobra.Command{
-	Use:   "kaweezel",
+	Use:   "kaweezle",
 	Short: "Kubernetes for WSL 2",
 	Long: `Manages a local kubernetes cluster working on WSL2.
 
@@ -43,7 +45,7 @@ Examples:
 
 > kaweezeel install
 
-> kaweezel status
+> kaweezle status
 
 `,
 	// Uncomment the following line if your bare application
@@ -64,15 +66,16 @@ func init() {
 	// Cobra supports persistent flags, which, if defined here,
 	// will be global for your application.
 	rootCmd.PersistentPreRunE = func(cmd *cobra.Command, args []string) error {
-		if err := SetUpLogs(os.Stderr, v, jsonLogs); err != nil {
+		if err := SetUpLogs(os.Stderr, LogLevel, JsonLogs); err != nil {
 			return err
 		}
 		return nil
 	}
 
-	rootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file (default is $HOME/.kaweezel.yaml)")
-	rootCmd.PersistentFlags().StringVarP(&v, "verbosity", "v", logrus.WarnLevel.String(), "Log level (debug, info, warn, error, fatal, panic)")
-	rootCmd.PersistentFlags().BoolVar(&jsonLogs, "json", false, "Log messages in JSON")
+	rootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file (default is $HOME/.kaweezle.yaml)")
+	rootCmd.PersistentFlags().StringVarP(&LogLevel, "verbosity", "v", logrus.InfoLevel.String(), "Log level (debug, info, warn, error, fatal, panic)")
+	rootCmd.PersistentFlags().BoolVar(&JsonLogs, "json", false, "Log messages in JSON")
+	rootCmd.PersistentFlags().StringVarP(&DistributionName, "name", "n", "kaweezle", "The name of the WSL distribution to manage")
 
 	// Cobra also supports local flags, which will only run
 	// when this action is called directly.
@@ -89,10 +92,10 @@ func initConfig() {
 		home, err := os.UserHomeDir()
 		cobra.CheckErr(err)
 
-		// Search config in home directory with name ".kaweezel" (without extension).
+		// Search config in home directory with name ".kaweezle" (without extension).
 		viper.AddConfigPath(home)
 		viper.SetConfigType("yaml")
-		viper.SetConfigName(".kaweezel")
+		viper.SetConfigName(".kaweezle")
 	}
 
 	viper.AutomaticEnv() // read in environment variables that match
@@ -107,8 +110,11 @@ func SetUpLogs(out io.Writer, level string, json bool) error {
 	logrus.SetOutput(out)
 	if json {
 		logrus.SetFormatter(&logrus.JSONFormatter{})
+	} else {
+		logrus.SetFormatter(&logrus.TextFormatter{ForceColors: true})
+		logrus.SetOutput(colorable.NewColorableStdout())
 	}
-	lvl, err := logrus.ParseLevel(v)
+	lvl, err := logrus.ParseLevel(LogLevel)
 	if err != nil {
 		return errors.Wrap(err, "parsing log level")
 	}

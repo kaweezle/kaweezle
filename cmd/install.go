@@ -29,7 +29,6 @@ import (
 
 var (
 	rootfs           string
-	name             string
 	defaultRootFiles = []string{"install.tar", "install.tar.gz", "rootfs.tar", "rootfs.tar.gz", "install.ext4.vhdx", "install.ext4.vhdx.gz"}
 )
 
@@ -43,23 +42,12 @@ Examples:
 
 > kaweezle install --root rootfs.tar.gz
 `,
-	Run: perform,
+	Run: _perform,
 }
 
 func init() {
 	rootCmd.AddCommand(installCmd)
-
-	// Here you will define your flags and configuration settings.
-
-	// Cobra supports Persistent Flags which will work for this command
-	// and all subcommands, e.g.:
-	// installCmd.PersistentFlags().String("foo", "", "A help for foo")
-
-	// Cobra supports local flags which will only run when this command
-	// is called directly, e.g.:
-	// installCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
 	installCmd.Flags().StringVarP(&rootfs, "root", "r", detectRootfsFiles(), "The root file system to install")
-	installCmd.Flags().StringVarP(&name, "name", "n", "kaweezle", "The name of the WSL distribution to install")
 }
 
 func detectRootfsFiles() string {
@@ -75,16 +63,29 @@ func detectRootfsFiles() string {
 	return "rootfs.tar.gz"
 }
 
-func perform(cmd *cobra.Command, args []string) {
-	if wsllib.WslIsDistributionRegistered(name) {
-		cobra.CheckErr(fmt.Sprintf("The distribution %s is already registered.", name))
+func _perform(cmd *cobra.Command, args []string) {
+	if wsllib.WslIsDistributionRegistered(DistributionName) {
+		cobra.CheckErr(fmt.Sprintf("The distribution %s is already registered.", DistributionName))
 	}
 	_, err := os.Stat(rootfs)
 	cobra.CheckErr(errors.Wrapf(err, "Bad root filesystem: %s", rootfs))
 
+	jsonArg := ""
+	if JsonLogs {
+		jsonArg = " --json"
+	}
 	log.WithFields(log.Fields{
-		"rootfs": rootfs,
-		"name":   name,
-	}).Info("Registering distribution...")
-	cobra.CheckErr(wsllib.WslRegisterDistribution(name, rootfs))
+		"rootfs":       rootfs,
+		"distrib_name": DistributionName,
+	}).Info("➜ Registering distribution...")
+	cobra.CheckErr(wsllib.WslRegisterDistribution(DistributionName, rootfs))
+
+	startCommand := fmt.Sprintf("/k8wsl -v %s%s start", LogLevel, jsonArg)
+	log.WithFields(log.Fields{
+		"distrib_name": DistributionName,
+		"command":      startCommand,
+	}).Info("➜ Starting kubernetes...")
+
+	_, err = wsllib.WslLaunchInteractive(DistributionName, startCommand, true)
+	cobra.CheckErr(err)
 }
