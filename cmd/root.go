@@ -17,11 +17,9 @@ package cmd
 
 import (
 	"fmt"
-	"io"
 	"os"
 
-	"github.com/mattn/go-colorable"
-	"github.com/pkg/errors"
+	log "github.com/antoinemartin/kaweezle/pkg/logger"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 
@@ -31,7 +29,7 @@ import (
 var (
 	cfgFile          string
 	LogLevel         string
-	JsonLogs         bool
+	LogFile          string
 	DistributionName string
 )
 
@@ -66,20 +64,24 @@ func init() {
 	// Cobra supports persistent flags, which, if defined here,
 	// will be global for your application.
 	rootCmd.PersistentPreRunE = func(cmd *cobra.Command, args []string) error {
-		if err := SetUpLogs(os.Stderr, LogLevel, JsonLogs); err != nil {
-			return err
+		log.WithLevel(LogLevel)
+		if LogFile != "" {
+			log.WithFileLogging(LogFile, true)
 		}
+
 		return nil
 	}
 
 	rootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file (default is $HOME/.kaweezle.yaml)")
 	rootCmd.PersistentFlags().StringVarP(&LogLevel, "verbosity", "v", logrus.InfoLevel.String(), "Log level (debug, info, warn, error, fatal, panic)")
-	rootCmd.PersistentFlags().BoolVar(&JsonLogs, "json", false, "Log messages in JSON")
+	rootCmd.PersistentFlags().StringVarP(&LogFile, "logfile", "l", "", "Log file to save")
 	rootCmd.PersistentFlags().StringVarP(&DistributionName, "name", "n", "kaweezle", "The name of the WSL distribution to manage")
 
 	// Cobra also supports local flags, which will only run
 	// when this action is called directly.
 	rootCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
+
+	log.InitTerm()
 }
 
 // initConfig reads in config file and ENV variables if set.
@@ -104,20 +106,4 @@ func initConfig() {
 	if err := viper.ReadInConfig(); err == nil {
 		fmt.Fprintln(os.Stderr, "Using config file:", viper.ConfigFileUsed())
 	}
-}
-
-func SetUpLogs(out io.Writer, level string, json bool) error {
-	logrus.SetOutput(out)
-	if json {
-		logrus.SetFormatter(&logrus.JSONFormatter{})
-	} else {
-		logrus.SetFormatter(&logrus.TextFormatter{ForceColors: true})
-		logrus.SetOutput(colorable.NewColorableStdout())
-	}
-	lvl, err := logrus.ParseLevel(LogLevel)
-	if err != nil {
-		return errors.Wrap(err, "parsing log level")
-	}
-	logrus.SetLevel(lvl)
-	return nil
 }

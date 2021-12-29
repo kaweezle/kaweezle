@@ -31,14 +31,14 @@ var uninstallCmd = &cobra.Command{
 
 > kaweezle uninstall
 `,
-	Run: _peform,
+	Run: performUninstall,
 }
 
 func init() {
 	rootCmd.AddCommand(uninstallCmd)
 }
 
-func _peform(cmd *cobra.Command, args []string) {
+func performUninstall(cmd *cobra.Command, args []string) {
 	if !wsllib.WslIsDistributionRegistered(DistributionName) {
 		cobra.CheckErr(fmt.Sprintf("The distribution %s is not registered.", DistributionName))
 	}

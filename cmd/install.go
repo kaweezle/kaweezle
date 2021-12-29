@@ -42,7 +42,7 @@ Examples:
 
 > kaweezle install --root rootfs.tar.gz
 `,
-	Run: _perform,
+	Run: performInstall,
 }
 
 func init() {
@@ -63,7 +63,7 @@ func detectRootfsFiles() string {
 	return "rootfs.tar.gz"
 }
 
-func _perform(cmd *cobra.Command, args []string) {
+func performInstall(cmd *cobra.Command, args []string) {
 	if wsllib.WslIsDistributionRegistered(DistributionName) {
 		cobra.CheckErr(fmt.Sprintf("The distribution %s is already registered.", DistributionName))
 	}
@@ -71,8 +71,12 @@ func _perform(cmd *cobra.Command, args []string) {
 	cobra.CheckErr(errors.Wrapf(err, "Bad root filesystem: %s", rootfs))
 
 	jsonArg := ""
-	if JsonLogs {
+	k8sLevel := LogLevel
+	if LogFile != "" {
 		jsonArg = " --json"
+		if k8sLevel != "trace" {
+			k8sLevel = "debug"
+		}
 	}
 	log.WithFields(log.Fields{
 		"rootfs":       rootfs,
@@ -80,7 +84,7 @@ func _perform(cmd *cobra.Command, args []string) {
 	}).Info("➜ Registering distribution...")
 	cobra.CheckErr(wsllib.WslRegisterDistribution(DistributionName, rootfs))
 
-	startCommand := fmt.Sprintf("/k8wsl -v %s%s start", LogLevel, jsonArg)
+	startCommand := fmt.Sprintf("/k8wsl -v %s%s start", k8sLevel, jsonArg)
 	log.WithFields(log.Fields{
 		"distrib_name": DistributionName,
 		"command":      startCommand,
