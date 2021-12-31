@@ -16,38 +16,43 @@ limitations under the License.
 package cmd
 
 import (
+	"os"
+
 	"github.com/antoinemartin/kaweezle/pkg/cluster"
 	log "github.com/antoinemartin/kaweezle/pkg/logger"
+	"github.com/antoinemartin/kaweezle/pkg/wsl"
 	"github.com/spf13/cobra"
 )
 
-// statusCmd represents the status command
-var statusCmd = &cobra.Command{
-	Use:   "status",
-	Short: "Current status of the cluster",
-	Long: `Gives the status of the cluster. Example:
-
-> kaweezle status
-`,
-	Run: performStatus,
+// stopCmd represents the stop command
+var stopCmd = &cobra.Command{
+	Use:   "stop",
+	Short: "Stop the cluster and the WSL distribution",
+	Long:  `Currently this stops abruptly the distribution.`,
+	Run: func(cmd *cobra.Command, args []string) {
+		status, err := cluster.GetClusterStatus(DistributionName)
+		cobra.CheckErr(err)
+		if status != cluster.Started {
+			log.Fatalf("Cluster %s in bad status: %v", DistributionName, status)
+			os.Exit(1)
+		}
+		log.SpinnerText(DistributionName, "Stopping")
+		err = wsl.StopDistribution(DistributionName)
+		log.SpinnerStop()
+		cobra.CheckErr(err)
+	},
 }
 
 func init() {
-	rootCmd.AddCommand(statusCmd)
+	rootCmd.AddCommand(stopCmd)
 
 	// Here you will define your flags and configuration settings.
 
 	// Cobra supports Persistent Flags which will work for this command
 	// and all subcommands, e.g.:
-	// statusCmd.PersistentFlags().String("foo", "", "A help for foo")
+	// stopCmd.PersistentFlags().String("foo", "", "A help for foo")
 
 	// Cobra supports local flags which will only run when this command
 	// is called directly, e.g.:
-	// statusCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
-}
-
-func performStatus(cmd *cobra.Command, args []string) {
-	status, err := cluster.GetClusterStatus(DistributionName)
-	cobra.CheckErr(err)
-	log.Infof("The status of the cluster %s is %v.", DistributionName, status)
+	// stopCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
 }

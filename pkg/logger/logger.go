@@ -52,13 +52,16 @@ type Logger struct {
 type LogLevel log.Level
 
 func InitTerm() {
-	pterm.Info.Prefix = pterm.Prefix{
+	/* pterm.Info.Prefix = pterm.Prefix{
 		Text:  "➜",
 		Style: pterm.NewStyle(pterm.FgGreen),
 	}
 	pterm.Warning.Prefix = pterm.Prefix{
 		Text: emoji.Sprint(":warning:"),
 	}
+	pterm.Error.Prefix = pterm.Prefix{
+		Text: emoji.Sprint(":bomb:"),
+	}*/
 }
 
 func (l *Logger) WithoutSpinner() *Logger {
@@ -81,6 +84,10 @@ func (l *Logger) WithLevel(level string) *Logger {
 
 func WithLevel(level string) {
 	std.WithLevel(level)
+	if l, e := log.ParseLevel(level); e == nil {
+		log.SetLevel(l)
+		log.SetFormatter(&log.JSONFormatter{})
+	}
 }
 
 func (l *Logger) WithContext(c string) *Logger {

@@ -20,6 +20,8 @@ import (
 	"os"
 	"path/filepath"
 
+	"github.com/antoinemartin/kaweezle/pkg/cluster"
+	"github.com/antoinemartin/kaweezle/pkg/k8s"
 	log "github.com/sirupsen/logrus"
 
 	"github.com/pkg/errors"
@@ -70,26 +72,12 @@ func performInstall(cmd *cobra.Command, args []string) {
 	_, err := os.Stat(rootfs)
 	cobra.CheckErr(errors.Wrapf(err, "Bad root filesystem: %s", rootfs))
 
-	jsonArg := ""
-	k8sLevel := LogLevel
-	if LogFile != "" {
-		jsonArg = " --json"
-		if k8sLevel != "trace" {
-			k8sLevel = "debug"
-		}
-	}
 	log.WithFields(log.Fields{
 		"rootfs":       rootfs,
 		"distrib_name": DistributionName,
 	}).Info("➜ Registering distribution...")
 	cobra.CheckErr(wsllib.WslRegisterDistribution(DistributionName, rootfs))
 
-	startCommand := fmt.Sprintf("/k8wsl -v %s%s start", k8sLevel, jsonArg)
-	log.WithFields(log.Fields{
-		"distrib_name": DistributionName,
-		"command":      startCommand,
-	}).Info("➜ Starting kubernetes...")
-
-	_, err = wsllib.WslLaunchInteractive(DistributionName, startCommand, true)
-	cobra.CheckErr(err)
+	cobra.CheckErr(cluster.StartCluster(DistributionName, LogLevel, LogFile != ""))
+	cobra.CheckErr(k8s.MergeKubernetesConfig(DistributionName))
 }
