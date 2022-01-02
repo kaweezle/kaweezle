@@ -19,8 +19,8 @@ import (
 	"os"
 
 	"github.com/antoinemartin/kaweezle/pkg/cluster"
-	log "github.com/antoinemartin/kaweezle/pkg/logger"
-	"github.com/antoinemartin/kaweezle/pkg/wsl"
+	log "github.com/sirupsen/logrus"
+
 	"github.com/spf13/cobra"
 )
 
@@ -36,10 +36,8 @@ var stopCmd = &cobra.Command{
 			log.Fatalf("Cluster %s in bad status: %v", DistributionName, status)
 			os.Exit(1)
 		}
-		log.SpinnerText(DistributionName, "Stopping")
-		err = wsl.StopDistribution(DistributionName)
-		log.SpinnerStop()
-		cobra.CheckErr(err)
+
+		cobra.CheckErr(cluster.StopCluster(DistributionName))
 	},
 }
 

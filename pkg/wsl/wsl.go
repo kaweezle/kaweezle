@@ -2,13 +2,17 @@ package wsl
 
 import (
 	"fmt"
+	"os"
 	"os/exec"
 	"strconv"
 	"strings"
+	"syscall"
 
 	"golang.org/x/text/encoding/unicode"
 
+	"github.com/antoinemartin/kaweezle/pkg/logger"
 	log "github.com/sirupsen/logrus"
+	"github.com/yuk7/wsllib-go"
 )
 
 type DistributionState int16
@@ -128,5 +132,33 @@ func StopDistribution(name string) (err error) {
 		}).Trace("result")
 	}
 
+	return
+}
+
+func LaunchAndPipe(distributionName string, command string, useCurrentWorkingDirectory bool, fields log.Fields) (exitCode uint32, err error) {
+	p, _ := syscall.GetCurrentProcess()
+
+	rout, wout, _ := os.Pipe()
+
+	stdin := syscall.Handle(0)
+	stdout := syscall.Handle(0)
+	stderr := syscall.Handle(0)
+
+	syscall.DuplicateHandle(p, syscall.Handle(os.Stdin.Fd()), p, &stdin, 0, true, syscall.DUPLICATE_SAME_ACCESS)
+	syscall.DuplicateHandle(p, syscall.Handle(os.Stdout.Fd()), p, &stdout, 0, true, syscall.DUPLICATE_SAME_ACCESS)
+	syscall.DuplicateHandle(p, syscall.Handle(wout.Fd()), p, &stderr, 0, true, syscall.DUPLICATE_SAME_ACCESS)
+
+	log.WithFields(log.Fields{
+		"command":           command,
+		"distribution_name": distributionName,
+	}).Debug("Start WSL command")
+	handle, err := wsllib.WslLaunch(distributionName, command, useCurrentWorkingDirectory, stdin, stdout, stderr)
+	// No more needed
+	wout.Close()
+	syscall.CloseHandle(stderr)
+	logger.PipeLogs(rout, fields)
+
+	syscall.WaitForSingleObject(handle, syscall.INFINITE)
+	syscall.GetExitCodeProcess(handle, &exitCode)
 	return
 }

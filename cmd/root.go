@@ -19,7 +19,9 @@ import (
 	"fmt"
 	"os"
 
-	log "github.com/antoinemartin/kaweezle/pkg/logger"
+	"github.com/antoinemartin/kaweezle/pkg/logger"
+	log "github.com/sirupsen/logrus"
+
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 
@@ -31,6 +33,7 @@ var (
 	LogLevel         string
 	LogFile          string
 	DistributionName string
+	JSONLogs         bool
 )
 
 // rootCmd represents the base command when called without any subcommands
@@ -64,9 +67,23 @@ func init() {
 	// Cobra supports persistent flags, which, if defined here,
 	// will be global for your application.
 	rootCmd.PersistentPreRunE = func(cmd *cobra.Command, args []string) error {
-		log.WithLevel(LogLevel)
+
+		if level, err := log.ParseLevel(LogLevel); err == nil {
+			log.SetLevel(level)
+		} else {
+			log.WithError(err).Fatal("Error while parsing log level")
+		}
+
 		if LogFile != "" {
-			log.WithFileLogging(LogFile, true)
+			logger.InitFileLogging(LogFile, JSONLogs)
+		} else {
+			if JSONLogs {
+				log.SetFormatter(&log.JSONFormatter{})
+			} else {
+				log.SetFormatter(&logger.PTermFormatter{
+					Emoji: true,
+				})
+			}
 		}
 
 		return nil
@@ -75,13 +92,12 @@ func init() {
 	rootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file (default is $HOME/.kaweezle.yaml)")
 	rootCmd.PersistentFlags().StringVarP(&LogLevel, "verbosity", "v", logrus.InfoLevel.String(), "Log level (debug, info, warn, error, fatal, panic)")
 	rootCmd.PersistentFlags().StringVarP(&LogFile, "logfile", "l", "", "Log file to save")
+	rootCmd.PersistentFlags().BoolVar(&JSONLogs, "json", false, "Output JSON logs")
 	rootCmd.PersistentFlags().StringVarP(&DistributionName, "name", "n", "kaweezle", "The name of the WSL distribution to manage")
 
 	// Cobra also supports local flags, which will only run
 	// when this action is called directly.
 	rootCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
-
-	log.InitTerm()
 }
 
 // initConfig reads in config file and ENV variables if set.

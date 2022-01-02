@@ -16,11 +16,9 @@ limitations under the License.
 package cmd
 
 import (
-	"os"
-
 	"github.com/antoinemartin/kaweezle/pkg/cluster"
 	"github.com/antoinemartin/kaweezle/pkg/k8s"
-	log "github.com/antoinemartin/kaweezle/pkg/logger"
+	log "github.com/sirupsen/logrus"
 
 	"github.com/spf13/cobra"
 )
@@ -35,12 +33,8 @@ var startCmd = &cobra.Command{
 		cobra.CheckErr(err)
 		if status != cluster.Installed {
 			log.Fatalf("Cluster %s in bad status: %v", DistributionName, status)
-			os.Exit(1)
 		}
-		log.Spinner()
-		err = cluster.StartCluster(DistributionName, LogLevel, LogFile != "")
-		log.SpinnerStop()
-		cobra.CheckErr(err)
+		cobra.CheckErr(cluster.StartCluster(DistributionName, LogLevel))
 		cobra.CheckErr(k8s.MergeKubernetesConfig(DistributionName))
 	},
 }

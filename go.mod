@@ -4,7 +4,6 @@ go 1.17
 
 require (
 	github.com/kyokomi/emoji v2.2.4+incompatible
-	github.com/mattn/go-isatty v0.0.14
 	github.com/pkg/errors v0.9.1
 	github.com/pterm/pterm v0.12.33
 	github.com/sirupsen/logrus v1.8.1

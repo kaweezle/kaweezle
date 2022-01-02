@@ -3,6 +3,7 @@ package cluster
 import (
 	"fmt"
 
+	"github.com/antoinemartin/kaweezle/pkg/logger"
 	"github.com/antoinemartin/kaweezle/pkg/wsl"
 	log "github.com/sirupsen/logrus"
 	"github.com/yuk7/wsllib-go"
@@ -16,6 +17,14 @@ const (
 	Installed
 	Started
 )
+
+var startClusterFields = log.Fields{
+	logger.TaskKey: "Start Cluster",
+}
+
+var stopClusterFields = log.Fields{
+	logger.TaskKey: "Stop Cluster",
+}
 
 func (s ClusterStatus) String() (r string) {
 
@@ -55,22 +64,24 @@ func GetClusterStatus(distributionName string) (status ClusterStatus, err error)
 	return
 }
 
-func StartCluster(distributionName string, logLevel string, json bool) (err error) {
-	jsonArg := ""
-	k8sLevel := logLevel
-	if json {
-		jsonArg = " --json"
-		if k8sLevel != "trace" {
-			k8sLevel = "debug"
-		}
-	}
-	startCommand := fmt.Sprintf("/k8wsl -v %s%s --name %s start", k8sLevel, jsonArg, distributionName)
-	log.WithFields(log.Fields{
+func StartCluster(distributionName string, logLevel string) (err error) {
+	startCommand := fmt.Sprintf("/k8wsl --json -v %s --name %s start", logLevel, distributionName)
+	log.WithFields(startClusterFields).WithFields(log.Fields{
 		"distribution_name": distributionName,
 		"command":           startCommand,
 	}).Info("Starting kubernetes...")
 
-	_, err = wsllib.WslLaunchInteractive(distributionName, startCommand, true)
+	_, err = wsl.LaunchAndPipe(distributionName, startCommand, true, startClusterFields)
+	log.WithError(err).WithFields(startClusterFields).Info("Kubernetes started")
 
+	return
+}
+
+func StopCluster(distributionName string) (err error) {
+	log.WithFields(stopClusterFields).WithFields(log.Fields{
+		"distribution_name": distributionName,
+	}).Info("Stopping kubernetes...")
+	err = wsl.StopDistribution(distributionName)
+	log.WithError(err).WithFields(stopClusterFields).Info("Kubernetes stopped")
 	return
 }

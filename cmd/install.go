@@ -78,6 +78,6 @@ func performInstall(cmd *cobra.Command, args []string) {
 	}).Info("➜ Registering distribution...")
 	cobra.CheckErr(wsllib.WslRegisterDistribution(DistributionName, rootfs))
 
-	cobra.CheckErr(cluster.StartCluster(DistributionName, LogLevel, LogFile != ""))
+	cobra.CheckErr(cluster.StartCluster(DistributionName, LogLevel))
 	cobra.CheckErr(k8s.MergeKubernetesConfig(DistributionName))
 }
