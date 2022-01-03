@@ -14,10 +14,13 @@
 <br />
 <div align="center">
 
+  <a href="https://github.com/antoinemartin/kaweezle">
+    <img src="images/logo.svg" alt="Logo" width="80" height="80">
+  </a>
   <h3 align="center">Kaweezle</h3>
 
   <p align="center">
-    An awesome README template to jumpstart your projects!
+    Run Vanilla Kubernetes on Windows with WSL 2 and Alpine Linux
     <br />
     <a href="https://github.com/antoinemartin/kaweezle"><strong>Explore the docs »</strong></a>
     <br />
@@ -77,9 +80,10 @@ This section should list any major frameworks/libraries used to bootstrap your
 project. Leave any add-ons/plugins for the acknowledgements section. Here are a
 few examples.
 
-- [Go](https://go.dev/)
-- [Cobra](https://github.com/spf13/cobra)
-- [Logrus](github.com/sirupsen/logrus)
+- [go](https://go.dev/)
+- [cobra](https://github.com/spf13/cobra)
+- [logrus](github.com/sirupsen/logrus)
+- [pterm](https://github.com/pterm/pterm)
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
@@ -87,9 +91,8 @@ few examples.
 
 ## Getting Started
 
-Kaweezle is better installed either with [Scoop](https://scoop.sh/) or
-[Chocolatey](https://chocolatey.org/). The following assumes you are using
-scoop.
+Kaweezle is better installed with [Scoop](https://scoop.sh/). The following
+assumes you are using it.
 
 ### Prerequisites
 
@@ -131,8 +134,6 @@ To install kaweezle, issue the following command:
 > scoop install kaweezlee
 ```
 
-**TODO**: Put instructions with chocolatey.
-
 <p align="right">(<a href="#top">back to top</a>)</p>
 
 <!-- USAGE EXAMPLES -->
@@ -161,8 +162,8 @@ At the end of the installation you will have the following:
 
 ## Roadmap
 
+- [x] Finish `install` command
 - [ ] Make rootfs downloadable ? This would allow other rootfs versions.
-- [ ] Finish `install` command
 - [ ] ...
 
 See the [open issues](https://github.com/antoinemartin/kaweezle/issues) for a
@@ -228,6 +229,10 @@ ideas:
 By using
 [kubeadm](https://kubernetes.io/docs/setup/production-environment/tools/kubeadm/create-cluster-kubeadm/)
 and Alpine, kaweezle is closer to the clusters you may use on public clouds.
+
+This readme has has been created from the
+[Best-README-Template](https://github.com/othneildrew/Best-README-Template)
+project.
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
