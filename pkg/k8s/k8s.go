@@ -15,7 +15,7 @@ const (
 func MergeKubernetesConfig(distributionName string) (err error) {
 
 	loadingRules := clientcmd.ClientConfigLoadingRules{
-		Precedence: []string{clientcmd.RecommendedHomeFile, fmt.Sprintf(wslKubeconfigFormat, distributionName)},
+		Precedence: []string{fmt.Sprintf(wslKubeconfigFormat, distributionName), clientcmd.RecommendedHomeFile},
 	}
 
 	var mergedConfig *api.Config
