@@ -5,6 +5,7 @@ import (
 	"os"
 	"regexp"
 	"sync"
+	"unicode"
 
 	"github.com/kyokomi/emoji"
 	"github.com/pterm/pterm"
@@ -72,9 +73,12 @@ func LevelPrinter(l log.Level) (p pterm.PrefixPrinter) {
 	return
 }
 
+var clocks = []string{"🕐", "🕑", "🕒", "🕓", "🕔", "🕕", "🕖", "🕗", "🕘", "🕙", "🕚", "🕛"}
+
+// var braille = []string{"⠋", "⠙", "⠹", "⠸", "⠼", "⠴", "⠦", "⠧", "⠇", "⠏"}
 var (
 	spinnerLock sync.Mutex
-	spinner     = pterm.DefaultSpinner.WithShowTimer(true).WithRemoveWhenDone(false)
+	spinner     = pterm.DefaultSpinner.WithShowTimer(true).WithRemoveWhenDone(false).WithSequence(clocks...)
 	spinners    = make(map[string](*pterm.SpinnerPrinter))
 )
 
@@ -97,6 +101,23 @@ func (f *PTermFormatter) transform(a string) (result string) {
 	}
 
 	return
+}
+
+func ellipsize(str string, max int) string {
+	lastSpaceIx := -1
+	len := 0
+	for i, r := range str {
+		if unicode.IsSpace(r) || unicode.IsPunct(r) {
+			lastSpaceIx = i
+		}
+		len++
+		if len >= max {
+			if lastSpaceIx != -1 {
+				return str[:lastSpaceIx] + "..."
+			}
+		}
+	}
+	return str
 }
 
 func (f *PTermFormatter) Format(entry *log.Entry) (b []byte, err error) {
@@ -124,7 +145,9 @@ func (f *PTermFormatter) Format(entry *log.Entry) (b []byte, err error) {
 					currentSpinner, _ = spinner.Start(task)
 					spinners[task] = currentSpinner
 				}
-				currentSpinner.UpdateText(fmt.Sprintf("%s  ➜  %s", task, transformed))
+				text := fmt.Sprintf("%s  ➜  %s", task, transformed)
+				ellipsized := ellipsize(text, pterm.GetTerminalWidth()-5)
+				currentSpinner.UpdateText(ellipsized)
 			}
 		}
 	} else {
