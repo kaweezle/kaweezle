@@ -65,7 +65,7 @@ func GetClusterStatus(distributionName string) (status ClusterStatus, err error)
 }
 
 func StartCluster(distributionName string, logLevel string) (err error) {
-	startCommand := fmt.Sprintf("/k8wsl --json -v %s --name %s start", logLevel, distributionName)
+	startCommand := fmt.Sprintf("/kwsl --json -v %s --name %s start", logLevel, distributionName)
 	log.WithFields(startClusterFields).WithFields(log.Fields{
 		"distribution_name": distributionName,
 		"command":           startCommand,
