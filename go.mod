@@ -4,7 +4,6 @@ go 1.17
 
 require (
 	github.com/kyokomi/emoji v2.2.4+incompatible
-	github.com/pkg/errors v0.9.1
 	github.com/pterm/pterm v0.12.33
 	github.com/sirupsen/logrus v1.8.1
 	github.com/spf13/cobra v1.2.1
@@ -12,9 +11,12 @@ require (
 	github.com/yuk7/wsllib-go v1.0.0
 	golang.org/x/text v0.3.7
 	k8s.io/client-go v0.22.4
+	github.com/bitfield/script v0.18.3
+	github.com/dustin/go-humanize v1.0.0
 )
 
 require (
+	bitbucket.org/creachadair/shell v0.0.6 // indirect
 	github.com/atomicgo/cursor v0.0.1 // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/fsnotify/fsnotify v1.5.1 // indirect

@@ -17,21 +17,16 @@ package cmd
 
 import (
 	"fmt"
-	"os"
 	"path/filepath"
 
 	"github.com/antoinemartin/kaweezle/pkg/cluster"
 	"github.com/antoinemartin/kaweezle/pkg/k8s"
+	"github.com/antoinemartin/kaweezle/pkg/rootfs"
+	"github.com/antoinemartin/kaweezle/pkg/wsl"
 	log "github.com/sirupsen/logrus"
 
-	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
 	"github.com/yuk7/wsllib-go"
-)
-
-var (
-	rootfs           string
-	defaultRootFiles = []string{"install.tar", "install.tar.gz", "rootfs.tar", "rootfs.tar.gz", "install.ext4.vhdx", "install.ext4.vhdx.gz"}
 )
 
 // installCmd represents the install command
@@ -49,35 +44,28 @@ Examples:
 
 func init() {
 	rootCmd.AddCommand(installCmd)
-	installCmd.Flags().StringVarP(&rootfs, "root", "r", detectRootfsFiles(), "The root file system to install")
-}
-
-func detectRootfsFiles() string {
-	efPath, _ := os.Executable()
-	efDir := filepath.Dir(efPath)
-	for _, rootFile := range defaultRootFiles {
-		rootPath := filepath.Join(efDir, rootFile)
-		_, err := os.Stat(rootPath)
-		if err == nil {
-			return rootPath
-		}
-	}
-	return "rootfs.tar.gz"
+	installCmd.Flags().StringVarP(&rootfs.TarFilePath, "root", "r", rootfs.DefaultTarFilePath, "The root file system to install")
 }
 
 func performInstall(cmd *cobra.Command, args []string) {
 	if wsllib.WslIsDistributionRegistered(DistributionName) {
 		cobra.CheckErr(fmt.Sprintf("The distribution %s is already registered.", DistributionName))
 	}
-	_, err := os.Stat(rootfs)
-	cobra.CheckErr(errors.Wrapf(err, "Bad root filesystem: %s", rootfs))
 
+	cobra.CheckErr(rootfs.EnsureRootFS(rootfs.TarFilePath, &UpdateRootFSFields))
+
+	installationDir := filepath.Dir(rootfs.TarFilePath)
 	log.WithFields(log.Fields{
-		"rootfs":       rootfs,
+		"rootfs":       rootfs.TarFilePath,
 		"distrib_name": DistributionName,
-	}).Info("➜ Registering distribution...")
-	cobra.CheckErr(wsllib.WslRegisterDistribution(DistributionName, rootfs))
+		"install_dir":  installationDir,
+	}).Info("Registering distribution...")
+	cobra.CheckErr(wsl.RegisterDistribution(DistributionName, rootfs.TarFilePath, installationDir))
 
 	cobra.CheckErr(cluster.StartCluster(DistributionName, LogLevel))
+	log.WithFields(log.Fields{
+		"distrib_name": DistributionName,
+		"install_dir":  installationDir,
+	}).Info("Adding cluster to kubeconfig...")
 	cobra.CheckErr(k8s.MergeKubernetesConfig(DistributionName))
 }

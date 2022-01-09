@@ -1,9 +1,11 @@
 package logger
 
 import (
+	"bytes"
 	"fmt"
 	"os"
 	"regexp"
+	"sort"
 	"sync"
 	"unicode"
 
@@ -12,7 +14,11 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
-const TaskKey = "task"
+const (
+	TaskKey        = "task"
+	FieldsPrefix   = "\n└ "
+	QuoteCharacter = "\""
+)
 
 type Log struct {
 	*log.Logger
@@ -49,7 +55,8 @@ func InitFileLogging(p string, json bool) *Log {
 }
 
 type PTermFormatter struct {
-	Emoji bool
+	Emoji      bool
+	ShowFields bool
 }
 
 func LevelPrinter(l log.Level) (p pterm.PrefixPrinter) {
@@ -120,6 +127,81 @@ func ellipsize(str string, max int) string {
 	return str
 }
 
+func (f *PTermFormatter) FormatFields(entry *log.Entry, l int, flp string) string {
+	b := &bytes.Buffer{}
+
+	var keys []string = make([]string, 0, len(entry.Data))
+	for k := range entry.Data {
+		keys = append(keys, k)
+	}
+	sort.Strings(keys)
+
+	ll := 0
+	flpl := len(flp)
+	for i, key := range keys {
+
+		bb := &bytes.Buffer{}
+		f.appendKeyValue(bb, key, entry.Data[key])
+		vls := ellipsize(bb.String(), l)
+		vl := len(vls)
+		if i > 0 {
+			if ll+vl >= l {
+				b.WriteByte('\n')
+				b.WriteString(flp)
+				ll = vl + flpl
+			} else {
+				b.WriteByte(' ')
+				ll += 1 + vl
+			}
+		} else {
+			ll = vl
+		}
+		b.WriteString(vls)
+	}
+	return b.String()
+}
+
+func (f *PTermFormatter) needsQuoting(text string) bool {
+	if len(text) == 0 {
+		return true
+	}
+	for _, ch := range text {
+		if !((ch >= 'a' && ch <= 'z') ||
+			(ch >= 'A' && ch <= 'Z') ||
+			(ch >= '0' && ch <= '9') ||
+			ch == '-' || ch == '.') {
+			return true
+		}
+	}
+	return false
+}
+
+func (f *PTermFormatter) appendValue(b *bytes.Buffer, value interface{}) {
+	switch value := value.(type) {
+	case string:
+		if !f.needsQuoting(value) {
+			b.WriteString(value)
+		} else {
+			fmt.Fprintf(b, "%s%v%s", QuoteCharacter, value, QuoteCharacter)
+		}
+	case error:
+		errmsg := value.Error()
+		if !f.needsQuoting(errmsg) {
+			b.WriteString(errmsg)
+		} else {
+			fmt.Fprintf(b, "%s%v%s", QuoteCharacter, errmsg, QuoteCharacter)
+		}
+	default:
+		fmt.Fprint(b, value)
+	}
+}
+
+func (f *PTermFormatter) appendKeyValue(b *bytes.Buffer, key string, value interface{}) {
+	b.WriteString(key)
+	b.WriteByte('=')
+	f.appendValue(b, value)
+}
+
 func (f *PTermFormatter) Format(entry *log.Entry) (b []byte, err error) {
 
 	b = []byte{}
@@ -152,6 +234,9 @@ func (f *PTermFormatter) Format(entry *log.Entry) (b []byte, err error) {
 		}
 	} else {
 		printer := LevelPrinter(entry.Level)
+		if f.ShowFields && len(entry.Data) > 0 {
+			transformed = transformed + pterm.Gray(FieldsPrefix, f.FormatFields(entry, pterm.GetTerminalWidth()-7, "  "))
+		}
 		printer.Println(transformed)
 	}
 

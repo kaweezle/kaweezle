@@ -162,3 +162,19 @@ func LaunchAndPipe(distributionName string, command string, useCurrentWorkingDir
 	syscall.GetExitCodeProcess(handle, &exitCode)
 	return
 }
+
+func RegisterDistribution(name string, rootfs string, path string) (err error) {
+	var out []byte
+	if out, err = exec.Command("C:\\Windows\\system32\\wsl.exe", "--import", name, path, rootfs).Output(); err == nil {
+		enc := unicode.UTF16(unicode.LittleEndian, unicode.IgnoreBOM)
+		out, _ = enc.NewDecoder().Bytes(out)
+		log.WithFields(log.Fields{
+			"output":            out,
+			"distribution_name": name,
+			"rootfs":            rootfs,
+			"path":              path,
+		}).Trace("result")
+	}
+
+	return
+}

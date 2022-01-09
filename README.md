@@ -76,10 +76,6 @@ building Docker images with the help of Postman.
 
 This project uses the following components:
 
-This section should list any major frameworks/libraries used to bootstrap your
-project. Leave any add-ons/plugins for the acknowledgements section. Here are a
-few examples.
-
 - [go](https://go.dev/)
 - [cobra](https://github.com/spf13/cobra)
 - [logrus](github.com/sirupsen/logrus)

@@ -22,7 +22,6 @@ import (
 	"github.com/antoinemartin/kaweezle/pkg/logger"
 	log "github.com/sirupsen/logrus"
 
-	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 
 	"github.com/spf13/viper"
@@ -81,7 +80,8 @@ func init() {
 				log.SetFormatter(&log.JSONFormatter{})
 			} else {
 				log.SetFormatter(&logger.PTermFormatter{
-					Emoji: true,
+					Emoji:      true,
+					ShowFields: true,
 				})
 			}
 		}
@@ -90,7 +90,7 @@ func init() {
 	}
 
 	rootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file (default is $HOME/.kaweezle.yaml)")
-	rootCmd.PersistentFlags().StringVarP(&LogLevel, "verbosity", "v", logrus.InfoLevel.String(), "Log level (debug, info, warn, error, fatal, panic)")
+	rootCmd.PersistentFlags().StringVarP(&LogLevel, "verbosity", "v", log.InfoLevel.String(), "Log level (debug, info, warn, error, fatal, panic)")
 	rootCmd.PersistentFlags().StringVarP(&LogFile, "logfile", "l", "", "Log file to save")
 	rootCmd.PersistentFlags().BoolVar(&JSONLogs, "json", false, "Output JSON logs")
 	rootCmd.PersistentFlags().StringVarP(&DistributionName, "name", "n", "kaweezle", "The name of the WSL distribution to manage")
