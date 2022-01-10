@@ -8,7 +8,7 @@ require (
 	github.com/kyokomi/emoji v2.2.4+incompatible
 	github.com/pterm/pterm v0.12.33
 	github.com/sirupsen/logrus v1.8.1
-	github.com/spf13/cobra v1.2.1
+	github.com/spf13/cobra v1.3.0
 	github.com/spf13/viper v1.10.0
 	github.com/yuk7/wsllib-go v1.0.0
 	golang.org/x/text v0.3.7
