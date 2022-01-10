@@ -236,25 +236,24 @@ project.
 <!-- https://www.markdownguide.org/basic-syntax/#reference-style-links -->
 
 [contributors-shield]:
-  https://img.shields.io/github/contributors/antoinemartin/kaweezle.svg?style=for-the-badge
+  https://img.shields.io/github/contributors/antoinemartin/kaweezle.svg?style=flat
 [contributors-url]:
   https://github.com/antoinemartin/kaweezle/graphs/contributors
 [forks-shield]:
-  https://img.shields.io/github/forks/antoinemartin/kaweezle.svg?style=for-the-badge
+  https://img.shields.io/github/forks/antoinemartin/kaweezle.svg?style=flat
 [forks-url]: https://github.com/antoinemartin/kaweezle/network/members
 [stars-shield]:
-  https://img.shields.io/github/stars/antoinemartin/kaweezle.svg?style=for-the-badge
+  https://img.shields.io/github/stars/antoinemartin/kaweezle.svg?style=flat
 [stars-url]: https://github.com/antoinemartin/kaweezle/stargazers
 [issues-shield]:
-  https://img.shields.io/github/issues/antoinemartin/kaweezle.svg?style=for-the-badge
+  https://img.shields.io/github/issues/antoinemartin/kaweezle.svg?style=flat
 [issues-url]: https://github.com/antoinemartin/kaweezle/issues
 [license-shield]:
-  https://img.shields.io/badge/license-apache_2.0-green?style=for-the-badge&logo=none
+  https://img.shields.io/badge/license-apache_2.0-green?style=flat&logo=none
 [license-url]: https://github.com/antoinemartin/kaweezle/blob/master/LICENSE
 [linkedin-shield]:
-  https://img.shields.io/badge/-LinkedIn-black.svg?style=for-the-badge&logo=linkedin&colorB=555
+  https://img.shields.io/badge/-LinkedIn-black.svg?style=flat&logo=linkedin&colorB=555
 [linkedin-url]: https://linkedin.com/in/antoinemartin
-[go-version]:
-  https://img.shields.io/badge/Go-1.17+-00ADD8?style=for-the-badge&logo=go
+[go-version]: https://img.shields.io/badge/Go-1.17+-00ADD8?style=flat&logo=go
 [stability]:
-  https://img.shields.io/badge/stability-experimental-orange?style=for-the-badge
+  https://img.shields.io/badge/stability-experimental-orange?style=flat

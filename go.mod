@@ -3,6 +3,8 @@ module github.com/antoinemartin/kaweezle
 go 1.17
 
 require (
+	github.com/bitfield/script v0.18.3
+	github.com/dustin/go-humanize v1.0.0
 	github.com/kyokomi/emoji v2.2.4+incompatible
 	github.com/pterm/pterm v0.12.33
 	github.com/sirupsen/logrus v1.8.1
@@ -11,8 +13,6 @@ require (
 	github.com/yuk7/wsllib-go v1.0.0
 	golang.org/x/text v0.3.7
 	k8s.io/client-go v0.22.4
-	github.com/bitfield/script v0.18.3
-	github.com/dustin/go-humanize v1.0.0
 )
 
 require (
