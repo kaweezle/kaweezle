@@ -85,7 +85,7 @@ var clocks = []string{"🕐", "🕑", "🕒", "🕓", "🕔", "🕕", "🕖", "�
 // var braille = []string{"⠋", "⠙", "⠹", "⠸", "⠼", "⠴", "⠦", "⠧", "⠇", "⠏"}
 var (
 	spinnerLock sync.Mutex
-	spinner     = pterm.DefaultSpinner.WithShowTimer(true).WithRemoveWhenDone(false).WithSequence(clocks...)
+	spinner     = pterm.DefaultSpinner.WithShowTimer(false).WithRemoveWhenDone(false).WithSequence(clocks...)
 	spinners    = make(map[string](*pterm.SpinnerPrinter))
 )
 
@@ -228,15 +228,16 @@ func (f *PTermFormatter) Format(entry *log.Entry) (b []byte, err error) {
 					spinners[task] = currentSpinner
 				}
 				text := fmt.Sprintf("%s  ➜  %s", task, transformed)
-				ellipsized := ellipsize(text, pterm.GetTerminalWidth()-5)
+				ellipsized := ellipsize(text, pterm.GetTerminalWidth()-2)
 				currentSpinner.UpdateText(ellipsized)
 			}
 		}
 	} else {
 		printer := LevelPrinter(entry.Level)
 		if f.ShowFields && len(entry.Data) > 0 {
-			transformed = transformed + pterm.Gray(FieldsPrefix, f.FormatFields(entry, pterm.GetTerminalWidth()-7, "  "))
+			transformed = transformed + pterm.Gray(FieldsPrefix, f.FormatFields(entry, pterm.GetTerminalWidth()-len(printer.Prefix.Text)-3, "  "))
 		}
+
 		printer.Println(transformed)
 	}
 
