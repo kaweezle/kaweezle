@@ -39,15 +39,12 @@ var (
 var rootCmd = &cobra.Command{
 	Use:   "kaweezle",
 	Short: "Kubernetes for WSL 2",
-	Long: `Manages a local kubernetes cluster working on WSL2.
-
-Examples:
-
-> kaweezeel install
-
-> kaweezle status
-
+	Long:  `Manages a local kubernetes cluster working on WSL2.`,
+	Example: `kaweezeel install
+kaweezle status
+kaweezle -v debug start
 `,
+	Version: "0.2.0", // <---VERSION--->
 	// Uncomment the following line if your bare application
 	// has an action associated with it:
 	// Run: func(cmd *cobra.Command, args []string) { },
