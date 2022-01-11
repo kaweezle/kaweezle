@@ -57,7 +57,7 @@ type DistributionInformation struct {
 
 func GetDistributions() (result map[string]DistributionInformation, err error) {
 
-	result = make(map[string]DistributionInformation, 0)
+	result = make(map[string]DistributionInformation)
 	if out, err := exec.Command("C:\\Windows\\system32\\wsl.exe", "--list", "--verbose").Output(); err == nil {
 		enc := unicode.UTF16(unicode.LittleEndian, unicode.IgnoreBOM)
 		out, _ = enc.NewDecoder().Bytes(out)

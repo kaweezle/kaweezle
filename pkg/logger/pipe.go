@@ -4,7 +4,7 @@ import (
 	"bufio"
 	"encoding/json"
 	"fmt"
-	"os"
+	"io"
 	"time"
 
 	log "github.com/sirupsen/logrus"
@@ -61,7 +61,7 @@ func (logEntry *ParsedLogEntry) LogEntry() (entry *log.Entry, err error) {
 	return
 }
 
-func PipeLogs(rout *os.File, fields log.Fields) {
+func PipeLogs(rout io.Reader, fields log.Fields) {
 
 	scanner := bufio.NewScanner(rout)
 	for scanner.Scan() {

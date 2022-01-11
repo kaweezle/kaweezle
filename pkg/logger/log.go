@@ -16,7 +16,7 @@ import (
 
 const (
 	TaskKey        = "task"
-	FieldsPrefix   = "\n└ "
+	FieldsPrefix   = "└  "
 	QuoteCharacter = "\""
 )
 
@@ -59,25 +59,24 @@ type PTermFormatter struct {
 	ShowFields bool
 }
 
-func LevelPrinter(l log.Level) (p pterm.PrefixPrinter) {
-	switch l {
+type Prefix struct {
+	Text  string
+	Style *pterm.Style
+}
 
-	case log.PanicLevel:
-		p = pterm.Fatal
-	case log.FatalLevel:
-		p = pterm.Fatal
-	case log.ErrorLevel:
-		p = pterm.Error
-	case log.WarnLevel:
-		p = pterm.Warning
-	case log.InfoLevel:
-		p = pterm.Info
-	case log.DebugLevel:
-		p = pterm.Debug
-	case log.TraceLevel:
-		p = pterm.Description
-	}
-	return
+const (
+	SuccessLevel log.Level = log.TraceLevel + 1
+)
+
+var LevelPrefixes = map[log.Level]*Prefix{
+	log.PanicLevel: {"💣", pterm.NewStyle(pterm.FgLightRed)},
+	log.FatalLevel: {"💣", pterm.NewStyle(pterm.FgLightRed)},
+	log.ErrorLevel: {"🐞", pterm.NewStyle(pterm.FgRed)},
+	log.WarnLevel:  {"⚡", pterm.NewStyle(pterm.FgYellow)},
+	log.InfoLevel:  {"🚀", pterm.NewStyle(pterm.FgLightCyan)},
+	log.DebugLevel: {"💬", pterm.NewStyle(pterm.FgLightMagenta)},
+	log.TraceLevel: {"👀", pterm.NewStyle(pterm.FgWhite)},
+	SuccessLevel:   {"🍺", pterm.NewStyle(pterm.FgLightGreen)},
 }
 
 var clocks = []string{"🕐", "🕑", "🕒", "🕓", "🕔", "🕕", "🕖", "🕗", "🕘", "🕙", "🕚", "🕛"}
@@ -85,7 +84,7 @@ var clocks = []string{"🕐", "🕑", "🕒", "🕓", "🕔", "🕕", "🕖", "�
 // var braille = []string{"⠋", "⠙", "⠹", "⠸", "⠼", "⠴", "⠦", "⠧", "⠇", "⠏"}
 var (
 	spinnerLock sync.Mutex
-	spinner     = pterm.DefaultSpinner.WithShowTimer(false).WithRemoveWhenDone(false).WithSequence(clocks...)
+	spinner     = pterm.DefaultSpinner.WithShowTimer(false).WithRemoveWhenDone(true).WithSequence(clocks...)
 	spinners    = make(map[string](*pterm.SpinnerPrinter))
 )
 
@@ -93,7 +92,7 @@ var emojiStrip = regexp.MustCompile(`[:][\w]+[:]`)
 
 func joinMsg(args ...interface{}) (message string) {
 	for _, m := range args {
-		message += " " + fmt.Sprintf("%v", m)
+		message += fmt.Sprintf("%v", m) + " "
 	}
 	return
 }
@@ -117,7 +116,9 @@ func ellipsize(str string, max int) string {
 		if unicode.IsSpace(r) || unicode.IsPunct(r) {
 			lastSpaceIx = i
 		}
-		len++
+		if unicode.IsPrint(r) {
+			len++
+		}
 		if len >= max {
 			if lastSpaceIx != -1 {
 				return str[:lastSpaceIx] + "..."
@@ -127,7 +128,7 @@ func ellipsize(str string, max int) string {
 	return str
 }
 
-func (f *PTermFormatter) FormatFields(entry *log.Entry, l int, flp string) string {
+func (f *PTermFormatter) FormatFields(entry *log.Entry, l int, flp string, style *pterm.Style) string {
 	b := &bytes.Buffer{}
 
 	var keys []string = make([]string, 0, len(entry.Data))
@@ -142,8 +143,9 @@ func (f *PTermFormatter) FormatFields(entry *log.Entry, l int, flp string) strin
 
 		bb := &bytes.Buffer{}
 		f.appendKeyValue(bb, key, entry.Data[key])
-		vls := ellipsize(bb.String(), l)
-		vl := len(vls)
+		vl := len(bb.String())
+		bb.Reset()
+		f.appendKeyValue(bb, style.Sprint(key), entry.Data[key])
 		if i > 0 {
 			if ll+vl >= l {
 				b.WriteByte('\n')
@@ -156,7 +158,7 @@ func (f *PTermFormatter) FormatFields(entry *log.Entry, l int, flp string) strin
 		} else {
 			ll = vl
 		}
-		b.WriteString(vls)
+		b.WriteString(bb.String())
 	}
 	return b.String()
 }
@@ -216,11 +218,14 @@ func (f *PTermFormatter) Format(entry *log.Entry) (b []byte, err error) {
 			currentSpinner, exists := spinners[task]
 
 			if rawError, ok := entry.Data[log.ErrorKey]; ok && exists {
+				prefix := LevelPrefixes[SuccessLevel]
+
 				if err, ok := rawError.(error); ok {
-					currentSpinner.Fail(err.Error())
-				} else {
-					currentSpinner.Success(transformed)
+					transformed = err.Error()
+					prefix = LevelPrefixes[log.ErrorLevel]
 				}
+				currentSpinner.Stop()
+				pterm.Println(prefix.Style.Sprint(prefix.Text), prefix.Style.Sprint(transformed))
 				delete(spinners, task)
 			} else {
 				if !exists {
@@ -228,17 +233,16 @@ func (f *PTermFormatter) Format(entry *log.Entry) (b []byte, err error) {
 					spinners[task] = currentSpinner
 				}
 				text := fmt.Sprintf("%s  ➜  %s", task, transformed)
-				ellipsized := ellipsize(text, pterm.GetTerminalWidth()-2)
+				ellipsized := ellipsize(text, pterm.GetTerminalWidth()-5)
 				currentSpinner.UpdateText(ellipsized)
 			}
 		}
 	} else {
-		printer := LevelPrinter(entry.Level)
+		prefix := LevelPrefixes[entry.Level]
+		pterm.Println(prefix.Style.Sprint(prefix.Text), prefix.Style.Sprint(transformed))
 		if f.ShowFields && len(entry.Data) > 0 {
-			transformed = transformed + pterm.Gray(FieldsPrefix, f.FormatFields(entry, pterm.GetTerminalWidth()-len(printer.Prefix.Text)-3, "  "))
+			pterm.Println(pterm.Gray(FieldsPrefix, f.FormatFields(entry, pterm.GetTerminalWidth(), "   ", prefix.Style)))
 		}
-
-		printer.Println(transformed)
 	}
 
 	return
