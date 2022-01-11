@@ -127,7 +127,8 @@ following command:
 To install kaweezle, issue the following command:
 
 ```console
-> scoop install kaweezlee
+> scoop bucket add kaweezle https://github.com/antoinemartin/scoop-bucket
+> scoop install kaweezle
 ```
 
 <p align="right">(<a href="#top">back to top</a>)</p>
@@ -159,7 +160,9 @@ At the end of the installation you will have the following:
 ## Roadmap
 
 - [x] Finish `install` command
-- [ ] Make rootfs downloadable ? This would allow other rootfs versions.
+- [x] Make rootfs downloadable
+- [x] Make kaweezle installable via scoop
+- [ ] Make kaweezle available on scoop extras bucket
 - [ ] ...
 
 See the [open issues](https://github.com/antoinemartin/kaweezle/issues) for a

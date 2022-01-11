@@ -25,7 +25,7 @@ builds:
 checksum:
   name_template: '{{ .ProjectName }}_checksums.txt'
 snapshot:
-  name_template: "{{ incpatch .Version }}-next"
+  name_template: "{{ incpatch .Version }}-devel"
 changelog:
   sort: asc
   filters:
@@ -46,3 +46,16 @@ archives:
     format_overrides:
       - goos: windows
         format: zip
+scoop:
+  bucket:
+    owner: antoinemartin
+    name: scoop-bucket
+    branch: main
+    token: "{{ .Env.SCOOP_BUCKET_GITHUB_TOKEN }}"
+  commit_author:
+    name: Antoine Martin
+    email: antoine@openance.com
+  commit_msg_template: "Scoop update for {{ .ProjectName }} version {{ .Tag }}"
+  homepage: https://github.com/antoinemartin/kaweezle
+  description: "WSL 2 Kubernetes distribution (Alpine based)"
+  license: Apache-2.0
