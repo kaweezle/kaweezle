@@ -18,6 +18,8 @@ package cmd
 import (
 	"fmt"
 
+	"github.com/antoinemartin/kaweezle/pkg/k8s"
+	"github.com/pterm/pterm"
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 	"github.com/yuk7/wsllib-go"
@@ -45,6 +47,10 @@ func performUninstall(cmd *cobra.Command, args []string) {
 
 	log.WithFields(log.Fields{
 		"distrib_name": DistributionName,
-	}).Info("➜ Uninstalling distribution...")
+	}).Infof("Uninstall %s WSL distribution", pterm.Bold.Sprint(DistributionName))
 	cobra.CheckErr(wsllib.WslUnregisterDistribution(DistributionName))
+	log.WithFields(log.Fields{
+		"distrib_name": DistributionName,
+	}).Infof("Remove %s kube context", pterm.Bold.Sprint(DistributionName))
+	cobra.CheckErr(k8s.RemoveKubernetesConfig(DistributionName))
 }
