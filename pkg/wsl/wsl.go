@@ -165,16 +165,21 @@ func LaunchAndPipe(distributionName string, command string, useCurrentWorkingDir
 
 func RegisterDistribution(name string, rootfs string, path string) (err error) {
 	var out []byte
+	fields := log.Fields{
+		"rootfs":       rootfs,
+		"distrib_name": name,
+		"install_dir":  path,
+		logger.TaskKey: "WSL Registration",
+	}
+
+	log.WithFields(fields).Infof("Registering %s in %s", name, path)
+
 	if out, err = exec.Command("C:\\Windows\\system32\\wsl.exe", "--import", name, path, rootfs).Output(); err == nil {
 		enc := unicode.UTF16(unicode.LittleEndian, unicode.IgnoreBOM)
 		out, _ = enc.NewDecoder().Bytes(out)
-		log.WithFields(log.Fields{
-			"output":            out,
-			"distribution_name": name,
-			"rootfs":            rootfs,
-			"path":              path,
-		}).Trace("result")
+		log.WithFields(fields).WithField("output", out).Trace("result")
 	}
+	log.WithFields(fields).WithError(err).Info("Registration done")
 
 	return
 }

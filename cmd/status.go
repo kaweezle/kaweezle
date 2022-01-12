@@ -17,8 +17,11 @@ package cmd
 
 import (
 	"github.com/antoinemartin/kaweezle/pkg/cluster"
+	"github.com/antoinemartin/kaweezle/pkg/k8s"
+	"github.com/pterm/pterm"
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
+	"k8s.io/client-go/kubernetes"
 )
 
 // statusCmd represents the status command
@@ -49,5 +52,17 @@ func init() {
 func performStatus(cmd *cobra.Command, args []string) {
 	status, err := cluster.GetClusterStatus(DistributionName)
 	cobra.CheckErr(err)
-	log.Infof("The status of the cluster %s is %v.", DistributionName, status)
+	log.Infof("Cluster %s is %v.", pterm.Bold.Sprint(DistributionName), pterm.Bold.Sprint(status))
+	var client *kubernetes.Clientset
+	client, err = k8s.ClientSetForDistribution(DistributionName)
+	cobra.CheckErr(err)
+	if status == cluster.Started {
+		active, unready, stopped, err := k8s.GetPodStatus(client)
+		cobra.CheckErr(err)
+		log.WithFields(log.Fields{
+			"active":  len(active),
+			"unready": len(unready),
+			"stopped": len(stopped),
+		}).Info("Pods status")
+	}
 }

@@ -1,9 +1,15 @@
 package k8s
 
 import (
+	"context"
 	"fmt"
 
 	log "github.com/sirupsen/logrus"
+	v1 "k8s.io/api/core/v1"
+
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/client-go/kubernetes"
+	"k8s.io/client-go/rest"
 	"k8s.io/client-go/tools/clientcmd"
 	"k8s.io/client-go/tools/clientcmd/api"
 )
@@ -52,5 +58,68 @@ func RemoveKubernetesConfig(distributionName string) (err error) {
 	} else {
 		log.WithError(err).WithField("distribution_name", distributionName).Error("Loading configuration")
 	}
+	return
+}
+
+func ClientSetForDistribution(distributionName string) (clientset *kubernetes.Clientset, err error) {
+
+	kubeConfigFile := fmt.Sprintf(wslKubeconfigFormat, distributionName)
+
+	log.WithFields(log.Fields{
+		"distribution_name": distributionName,
+		"kubeConfigFile":    kubeConfigFile,
+	}).Trace("Loading config")
+
+	var config *rest.Config
+
+	if config, err = clientcmd.BuildConfigFromFlags("", kubeConfigFile); err == nil {
+		clientset, err = kubernetes.NewForConfig(config)
+	} else {
+		log.WithError(err).WithField("distribution_name", distributionName).Error("Loading configuration")
+	}
+
+	return
+}
+
+// IsPodReady returns false if the Pod Status is nil
+func IsPodReady(pod *v1.Pod) bool {
+	condition := getPodReadyCondition(&pod.Status)
+	return condition != nil && condition.Status == v1.ConditionTrue
+}
+
+func getPodReadyCondition(status *v1.PodStatus) *v1.PodCondition {
+	for i := range status.Conditions {
+		if status.Conditions[i].Type == v1.PodReady {
+			return &status.Conditions[i]
+		}
+	}
+	return nil
+}
+
+func GetPodsSeparatedByStatus(pods []v1.Pod) (active, unready, stopped []*v1.Pod) {
+	for _, pod := range pods {
+		switch pod.Status.Phase {
+		case v1.PodRunning:
+			if IsPodReady(&pod) {
+				active = append(active, &pod)
+			} else {
+				unready = append(unready, &pod)
+			}
+		case v1.PodPending, v1.PodUnknown:
+			unready = append(unready, &pod)
+		default:
+			stopped = append(stopped, &pod)
+		}
+	}
+
+	return active, unready, stopped
+}
+
+func GetPodStatus(clientset kubernetes.Interface) (active, unready, stopped []*v1.Pod, err error) {
+	var list *v1.PodList
+	if list, err = clientset.CoreV1().Pods("").List(context.TODO(), metav1.ListOptions{}); err != nil {
+		return
+	}
+	active, unready, stopped = GetPodsSeparatedByStatus(list.Items)
 	return
 }

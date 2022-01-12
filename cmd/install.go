@@ -16,17 +16,9 @@ limitations under the License.
 package cmd
 
 import (
-	"fmt"
-	"path/filepath"
-
-	"github.com/antoinemartin/kaweezle/pkg/cluster"
-	"github.com/antoinemartin/kaweezle/pkg/k8s"
 	"github.com/antoinemartin/kaweezle/pkg/rootfs"
-	"github.com/antoinemartin/kaweezle/pkg/wsl"
-	log "github.com/sirupsen/logrus"
 
 	"github.com/spf13/cobra"
-	"github.com/yuk7/wsllib-go"
 )
 
 // installCmd represents the install command
@@ -39,33 +31,10 @@ Examples:
 
 > kaweezle install --root rootfs.tar.gz
 `,
-	Run: performInstall,
+	Run: performStart,
 }
 
 func init() {
 	rootCmd.AddCommand(installCmd)
 	installCmd.Flags().StringVarP(&rootfs.TarFilePath, "root", "r", rootfs.DefaultTarFilePath, "The root file system to install")
-}
-
-func performInstall(cmd *cobra.Command, args []string) {
-	if wsllib.WslIsDistributionRegistered(DistributionName) {
-		cobra.CheckErr(fmt.Sprintf("The distribution %s is already registered.", DistributionName))
-	}
-
-	cobra.CheckErr(rootfs.EnsureRootFS(rootfs.TarFilePath, &UpdateRootFSFields))
-
-	installationDir := filepath.Dir(rootfs.TarFilePath)
-	log.WithFields(log.Fields{
-		"rootfs":       rootfs.TarFilePath,
-		"distrib_name": DistributionName,
-		"install_dir":  installationDir,
-	}).Info("Registering distribution...")
-	cobra.CheckErr(wsl.RegisterDistribution(DistributionName, rootfs.TarFilePath, installationDir))
-
-	cobra.CheckErr(cluster.StartCluster(DistributionName, LogLevel))
-	log.WithFields(log.Fields{
-		"distrib_name": DistributionName,
-		"install_dir":  installationDir,
-	}).Info("Adding cluster to kubeconfig...")
-	cobra.CheckErr(k8s.MergeKubernetesConfig(DistributionName))
 }

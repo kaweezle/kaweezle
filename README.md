@@ -140,7 +140,7 @@ To install kaweezle, issue the following command:
 First, install the kaweezle distribution with the following command:
 
 ```console
-> kaweezle install
+> kaweezle start
 ```
 
 This will install the Kaweezle distribution, start it and install kubernetes on
