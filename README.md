@@ -31,6 +31,8 @@
   </p>
 </div>
 
+[![asciicast](https://asciinema.org/a/461421.svg)](https://asciinema.org/a/461421)
+
 <!-- TABLE OF CONTENTS -->
 <details>
   <summary>Table of Contents</summary>
