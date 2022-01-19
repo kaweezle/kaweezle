@@ -19,10 +19,10 @@ import (
 	"path/filepath"
 	"time"
 
-	"github.com/antoinemartin/kaweezle/pkg/cluster"
-	"github.com/antoinemartin/kaweezle/pkg/k8s"
-	"github.com/antoinemartin/kaweezle/pkg/rootfs"
-	"github.com/antoinemartin/kaweezle/pkg/wsl"
+	"github.com/kaweezle/kaweezle/pkg/cluster"
+	"github.com/kaweezle/kaweezle/pkg/k8s"
+	"github.com/kaweezle/kaweezle/pkg/rootfs"
+	"github.com/kaweezle/kaweezle/pkg/wsl"
 	log "github.com/sirupsen/logrus"
 
 	"github.com/spf13/cobra"

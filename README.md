@@ -14,7 +14,7 @@
 <br />
 <div align="center">
 
-  <a href="https://github.com/antoinemartin/kaweezle">
+  <a href="https://github.com/kaweezle/kaweezle">
     <img src="images/logo.svg" alt="Logo" width="80" height="80">
   </a>
   <h3 align="center">Kaweezle</h3>
@@ -22,12 +22,12 @@
   <p align="center">
     Run Vanilla Kubernetes on Windows with WSL 2 and Alpine Linux
     <br />
-    <a href="https://github.com/antoinemartin/kaweezle"><strong>Explore the docs »</strong></a>
+    <a href="https://github.com/kaweezle/kaweezle"><strong>Explore the docs »</strong></a>
     <br />
     <br />
-    <a href="https://github.com/antoinemartin/kaweezle/issues">Report Bug</a>
+    <a href="https://github.com/kaweezle/kaweezle/issues">Report Bug</a>
     ·
-    <a href="https://github.com/antoinemartin/kaweezle/issues">Request Feature</a>
+    <a href="https://github.com/kaweezle/kaweezle/issues">Request Feature</a>
   </p>
 </div>
 
@@ -129,7 +129,7 @@ following command:
 To install kaweezle, issue the following command:
 
 ```console
-> scoop bucket add kaweezle https://github.com/antoinemartin/scoop-bucket
+> scoop bucket add kaweezle https://github.com/kaweezle/scoop-bucket
 > scoop install kaweezle
 ```
 
@@ -167,8 +167,8 @@ At the end of the installation you will have the following:
 - [ ] Make kaweezle available on scoop extras bucket
 - [ ] ...
 
-See the [open issues](https://github.com/antoinemartin/kaweezle/issues) for a
-full list of proposed features (and known issues).
+See the [open issues](https://github.com/kaweezle/kaweezle/issues) for a full
+list of proposed features (and known issues).
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
@@ -202,10 +202,10 @@ Distributed under the Apache License. See `LICENSE` for more information.
 
 ## Contact
 
-Antoine Martin - [@antoinemartin](https://twitter.com/antoinemartin)
+Kaweezle - [@kaweezle](https://twitter.com/kaweezle)
 
 Project Link:
-[https://github.com/antoinemartin/kaweezle](https://github.com/antoinemartin/kaweezle)
+[https://github.com/kaweezle/kaweezle](https://github.com/kaweezle/kaweezle)
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
@@ -241,24 +241,23 @@ project.
 <!-- https://www.markdownguide.org/basic-syntax/#reference-style-links -->
 
 [contributors-shield]:
-  https://img.shields.io/github/contributors/antoinemartin/kaweezle.svg?style=flat
-[contributors-url]:
-  https://github.com/antoinemartin/kaweezle/graphs/contributors
+  https://img.shields.io/github/contributors/kaweezle/kaweezle.svg?style=flat
+[contributors-url]: https://github.com/kaweezle/kaweezle/graphs/contributors
 [forks-shield]:
-  https://img.shields.io/github/forks/antoinemartin/kaweezle.svg?style=flat
-[forks-url]: https://github.com/antoinemartin/kaweezle/network/members
+  https://img.shields.io/github/forks/kaweezle/kaweezle.svg?style=flat
+[forks-url]: https://github.com/kaweezle/kaweezle/network/members
 [stars-shield]:
-  https://img.shields.io/github/stars/antoinemartin/kaweezle.svg?style=flat
-[stars-url]: https://github.com/antoinemartin/kaweezle/stargazers
+  https://img.shields.io/github/stars/kaweezle/kaweezle.svg?style=flat
+[stars-url]: https://github.com/kaweezle/kaweezle/stargazers
 [issues-shield]:
-  https://img.shields.io/github/issues/antoinemartin/kaweezle.svg?style=flat
-[issues-url]: https://github.com/antoinemartin/kaweezle/issues
+  https://img.shields.io/github/issues/kaweezle/kaweezle.svg?style=flat
+[issues-url]: https://github.com/kaweezle/kaweezle/issues
 [license-shield]:
   https://img.shields.io/badge/license-apache_2.0-green?style=flat&logo=none
-[license-url]: https://github.com/antoinemartin/kaweezle/blob/master/LICENSE
+[license-url]: https://github.com/kaweezle/kaweezle/blob/master/LICENSE
 [linkedin-shield]:
   https://img.shields.io/badge/-LinkedIn-black.svg?style=flat&logo=linkedin&colorB=555
-[linkedin-url]: https://linkedin.com/in/antoinemartin
+[linkedin-url]: https://linkedin.com/in/kaweezle
 [go-version]: https://img.shields.io/badge/Go-1.17+-00ADD8?style=flat&logo=go
 [stability]:
   https://img.shields.io/badge/stability-experimental-orange?style=flat

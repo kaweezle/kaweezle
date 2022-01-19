@@ -1,4 +1,4 @@
-module github.com/antoinemartin/kaweezle
+module github.com/kaweezle/kaweezle
 
 go 1.17
 

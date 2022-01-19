@@ -1,5 +1,5 @@
 /*
-Copyright © 2021 NAME HERE <EMAIL ADDRESS>
+Copyright © 2021 Antoine Martin <antoine@openance.com>
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -16,7 +16,7 @@ limitations under the License.
 package cmd
 
 import (
-	"github.com/antoinemartin/kaweezle/pkg/rootfs"
+	"github.com/kaweezle/kaweezle/pkg/rootfs"
 
 	"github.com/spf13/cobra"
 )

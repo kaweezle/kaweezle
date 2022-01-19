@@ -1,5 +1,5 @@
 /*
-Copyright © 2022 NAME HERE <EMAIL ADDRESS>
+Copyright © 2022 Antoine Martin <antoine@openance.com>
 
 Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
@@ -16,8 +16,8 @@ limitations under the License.
 package cmd
 
 import (
-	"github.com/antoinemartin/kaweezle/pkg/logger"
-	"github.com/antoinemartin/kaweezle/pkg/rootfs"
+	"github.com/kaweezle/kaweezle/pkg/logger"
+	"github.com/kaweezle/kaweezle/pkg/rootfs"
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 )

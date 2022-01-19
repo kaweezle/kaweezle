@@ -18,7 +18,7 @@ package cmd
 import (
 	"os"
 
-	"github.com/antoinemartin/kaweezle/pkg/cluster"
+	"github.com/kaweezle/kaweezle/pkg/cluster"
 	log "github.com/sirupsen/logrus"
 
 	"github.com/spf13/cobra"

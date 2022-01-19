@@ -16,8 +16,8 @@ limitations under the License.
 package cmd
 
 import (
-	"github.com/antoinemartin/kaweezle/pkg/cluster"
-	"github.com/antoinemartin/kaweezle/pkg/k8s"
+	"github.com/kaweezle/kaweezle/pkg/cluster"
+	"github.com/kaweezle/kaweezle/pkg/k8s"
 	"github.com/pterm/pterm"
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"

@@ -18,7 +18,7 @@ package cmd
 import (
 	"fmt"
 
-	"github.com/antoinemartin/kaweezle/pkg/k8s"
+	"github.com/kaweezle/kaweezle/pkg/k8s"
 	"github.com/pterm/pterm"
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"

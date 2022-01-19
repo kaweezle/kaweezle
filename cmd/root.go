@@ -19,7 +19,7 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/antoinemartin/kaweezle/pkg/logger"
+	"github.com/kaweezle/kaweezle/pkg/logger"
 	log "github.com/sirupsen/logrus"
 
 	"github.com/spf13/cobra"
