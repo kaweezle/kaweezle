@@ -16,7 +16,6 @@ limitations under the License.
 package cmd
 
 import (
-	"path/filepath"
 	"time"
 
 	"github.com/kaweezle/kaweezle/pkg/cluster"
@@ -56,7 +55,8 @@ func performStart(cmd *cobra.Command, args []string) {
 	if status != cluster.Started {
 		if status == cluster.Uninstalled {
 			cobra.CheckErr(rootfs.EnsureRootFS(rootfs.TarFilePath, &UpdateRootFSFields))
-			installationDir := filepath.Dir(rootfs.TarFilePath)
+			installationDir, err := rootfs.EnsureWSLDirectory(rootfs.HomeDir, DistributionName)
+			cobra.CheckErr(err)
 			cobra.CheckErr(wsl.RegisterDistribution(DistributionName, rootfs.TarFilePath, installationDir))
 			status = cluster.Installed
 		}

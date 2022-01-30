@@ -124,7 +124,7 @@ func arePodsReady(c kubernetes.Interface, fields *log.Fields) wait.ConditionFunc
 		if len(stopped) > 0 {
 			return false, fmt.Errorf("stopped pods: %d", len(stopped))
 		}
-		return len(unready) == 0, nil
+		return len(active) > 0 && len(unready) == 0, nil
 	}
 }
 

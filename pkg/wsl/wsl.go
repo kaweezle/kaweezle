@@ -193,6 +193,8 @@ func RegisterDistribution(name string, rootfs string, path string) (err error) {
 		enc := unicode.UTF16(unicode.LittleEndian, unicode.IgnoreBOM)
 		out, _ = enc.NewDecoder().Bytes(out)
 		log.WithFields(fields).WithField("output", out).Trace("result")
+	} else {
+		err = fmt.Errorf("error while importing WSL distribution %s in path %s with root file system %s: %v", name, path, rootfs, err)
 	}
 	log.WithFields(fields).WithError(err).Info("Registration done")
 

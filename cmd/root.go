@@ -18,14 +18,18 @@ package cmd
 import (
 	"fmt"
 	"os"
+	"strings"
 
 	"github.com/kaweezle/kaweezle/pkg/logger"
 	log "github.com/sirupsen/logrus"
 
 	"github.com/spf13/cobra"
+	"github.com/spf13/pflag"
 
 	"github.com/spf13/viper"
 )
+
+const commandName = "kaweezle"
 
 var (
 	cfgFile          string
@@ -33,18 +37,19 @@ var (
 	LogFile          string
 	DistributionName string
 	JSONLogs         bool
+	envPrefix        = strings.ToUpper(commandName)
 )
 
 // rootCmd represents the base command when called without any subcommands
 var rootCmd = &cobra.Command{
-	Use:   "kaweezle",
+	Use:   commandName,
 	Short: "Kubernetes for WSL 2",
 	Long:  `Manages a local kubernetes cluster working on WSL2.`,
-	Example: `kaweezeel install
+	Example: `kaweezle install
 kaweezle status
 kaweezle -v debug start
 `,
-	Version: "v0.3.0", // <---VERSION--->
+	Version: "v0.3.4", // <---VERSION--->
 	// Uncomment the following line if your bare application
 	// has an action associated with it:
 	// Run: func(cmd *cobra.Command, args []string) { },
@@ -57,44 +62,37 @@ func Execute() {
 }
 
 func init() {
-	cobra.OnInitialize(initConfig)
+	cobra.OnInitialize(initLogging, initConfig)
 
-	// Here you will define your flags and configuration settings.
-	// Cobra supports persistent flags, which, if defined here,
-	// will be global for your application.
-	rootCmd.PersistentPreRunE = func(cmd *cobra.Command, args []string) error {
+	pflags := rootCmd.PersistentFlags()
 
-		if level, err := log.ParseLevel(LogLevel); err == nil {
-			log.SetLevel(level)
-		} else {
-			log.WithError(err).Fatal("Error while parsing log level")
-		}
+	pflags.StringVar(&cfgFile, "config", "", "config file (default is $HOME/.kaweezle.yaml)")
+	pflags.StringVarP(&LogLevel, "verbosity", "v", log.InfoLevel.String(), "Log level (debug, info, warn, error, fatal, panic)")
+	pflags.StringVarP(&LogFile, "logfile", "l", "", "Log file to save")
+	pflags.BoolVar(&JSONLogs, "json", false, "Output JSON logs")
+	pflags.StringVarP(&DistributionName, "name", "n", "kaweezle", "The name of the WSL distribution to manage")
+}
 
-		if LogFile != "" {
-			logger.InitFileLogging(LogFile, JSONLogs)
-		} else {
-			if JSONLogs {
-				log.SetFormatter(&log.JSONFormatter{})
-			} else {
-				log.SetFormatter(&logger.PTermFormatter{
-					Emoji:      true,
-					ShowFields: true,
-				})
-			}
-		}
-
-		return nil
+// initLogging initializes logging
+func initLogging() {
+	if level, err := log.ParseLevel(LogLevel); err == nil {
+		log.SetLevel(level)
+	} else {
+		log.WithError(err).Fatal("Error while parsing log level")
 	}
 
-	rootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file (default is $HOME/.kaweezle.yaml)")
-	rootCmd.PersistentFlags().StringVarP(&LogLevel, "verbosity", "v", log.InfoLevel.String(), "Log level (debug, info, warn, error, fatal, panic)")
-	rootCmd.PersistentFlags().StringVarP(&LogFile, "logfile", "l", "", "Log file to save")
-	rootCmd.PersistentFlags().BoolVar(&JSONLogs, "json", false, "Output JSON logs")
-	rootCmd.PersistentFlags().StringVarP(&DistributionName, "name", "n", "kaweezle", "The name of the WSL distribution to manage")
-
-	// Cobra also supports local flags, which will only run
-	// when this action is called directly.
-	// rootCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
+	if LogFile != "" {
+		logger.InitFileLogging(LogFile, JSONLogs)
+	} else {
+		if JSONLogs {
+			log.SetFormatter(&log.JSONFormatter{})
+		} else {
+			log.SetFormatter(&logger.PTermFormatter{
+				Emoji:      true,
+				ShowFields: true,
+			})
+		}
+	}
 }
 
 // initConfig reads in config file and ENV variables if set.
@@ -110,13 +108,32 @@ func initConfig() {
 		// Search config in home directory with name ".kaweezle" (without extension).
 		viper.AddConfigPath(home)
 		viper.SetConfigType("yaml")
-		viper.SetConfigName(".kaweezle")
+		viper.SetConfigName("." + commandName)
 	}
 
 	viper.AutomaticEnv() // read in environment variables that match
 
 	// If a config file is found, read it in.
 	if err := viper.ReadInConfig(); err == nil {
-		fmt.Fprintln(os.Stderr, "Using config file:", viper.ConfigFileUsed())
+		log.WithField("config_file", viper.ConfigFileUsed()).Info("Using config file")
+		bindFlags(rootCmd, viper.GetViper())
 	}
+}
+
+// Bind each cobra flag to its associated viper configuration (config file and environment variable)
+func bindFlags(cmd *cobra.Command, v *viper.Viper) {
+	cmd.PersistentFlags().VisitAll(func(f *pflag.Flag) {
+		// Environment variables can't have dashes in them, so bind them to their equivalent
+		// keys with underscores, e.g. --favorite-color to STING_FAVORITE_COLOR
+		if strings.Contains(f.Name, "-") {
+			envVarSuffix := strings.ToUpper(strings.ReplaceAll(f.Name, "-", "_"))
+			v.BindEnv(f.Name, fmt.Sprintf("%s_%s", envPrefix, envVarSuffix))
+		}
+
+		// Apply the viper config value to the flag when the flag is not set and viper has a value
+		if !f.Changed && v.IsSet(f.Name) {
+			val := v.Get(f.Name)
+			cmd.PersistentFlags().Set(f.Name, fmt.Sprintf("%v", val))
+		}
+	})
 }

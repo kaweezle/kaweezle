@@ -19,6 +19,7 @@ import (
 	"fmt"
 
 	"github.com/kaweezle/kaweezle/pkg/k8s"
+	"github.com/kaweezle/kaweezle/pkg/rootfs"
 	"github.com/pterm/pterm"
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
@@ -53,4 +54,8 @@ func performUninstall(cmd *cobra.Command, args []string) {
 		"distrib_name": DistributionName,
 	}).Infof("Remove %s kube context", pterm.Bold.Sprint(DistributionName))
 	cobra.CheckErr(k8s.RemoveKubernetesConfig(DistributionName))
+	log.WithFields(log.Fields{
+		"distrib_name": DistributionName,
+	}).Infof("Remove %s directory", pterm.Bold.Sprint(DistributionName))
+	cobra.CheckErr(rootfs.RemoveWSLDirectory(rootfs.HomeDir, DistributionName))
 }

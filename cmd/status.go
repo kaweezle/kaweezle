@@ -53,10 +53,10 @@ func performStatus(cmd *cobra.Command, args []string) {
 	status, err := cluster.GetClusterStatus(DistributionName)
 	cobra.CheckErr(err)
 	log.Infof("Cluster %s is %v.", pterm.Bold.Sprint(DistributionName), pterm.Bold.Sprint(status))
-	var client *kubernetes.Clientset
-	client, err = k8s.ClientSetForDistribution(DistributionName)
-	cobra.CheckErr(err)
 	if status == cluster.Started {
+		var client *kubernetes.Clientset
+		client, err = k8s.ClientSetForDistribution(DistributionName)
+		cobra.CheckErr(err)
 		active, unready, stopped, err := k8s.GetPodStatus(client)
 		cobra.CheckErr(err)
 		log.WithFields(log.Fields{

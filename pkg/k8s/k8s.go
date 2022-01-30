@@ -65,6 +65,12 @@ func RemoveKubernetesConfig(distributionName string) (err error) {
 		delete(config.Clusters, distributionName)
 		delete(config.Contexts, distributionName)
 		delete(config.AuthInfos, distributionName)
+		if config.CurrentContext == distributionName {
+			for k, _ := range config.Contexts {
+				config.CurrentContext = k
+				break
+			}
+		}
 		log.WithFields(log.Fields{
 			"distribution_name": distributionName,
 			"kubeConfigFile":    clientcmd.RecommendedFileName,

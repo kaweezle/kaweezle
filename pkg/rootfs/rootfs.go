@@ -198,3 +198,20 @@ func EnsureRootFS(path string, fields *log.Fields) (err error) {
 
 	return
 }
+
+func EnsureWSLDirectory(homeDir string, name string) (path string, err error) {
+
+	path = filepath.Join(homeDir, name)
+	if err = EnsureHomeDir(path); err != nil {
+		log.WithError(err).WithField("wsl_directory", path).Debug("WSL directory")
+		path = ""
+	}
+
+	return
+}
+
+func RemoveWSLDirectory(homeDir string, name string) (err error) {
+	path := filepath.Join(homeDir, name)
+	err = os.RemoveAll(path)
+	return
+}
