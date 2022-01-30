@@ -62,7 +62,7 @@ func Execute() {
 }
 
 func init() {
-	cobra.OnInitialize(initLogging, initConfig)
+	cobra.OnInitialize(initConfig, initLogging)
 
 	pflags := rootCmd.PersistentFlags()
 
@@ -115,7 +115,7 @@ func initConfig() {
 
 	// If a config file is found, read it in.
 	if err := viper.ReadInConfig(); err == nil {
-		log.WithField("config_file", viper.ConfigFileUsed()).Info("Using config file")
+		// fmt.Fprintln(os.Stderr, "Using config file:", viper.ConfigFileUsed())
 		bindFlags(rootCmd, viper.GetViper())
 	}
 }
