@@ -14,7 +14,7 @@
 <br />
 <div align="center">
 
-  <a href="https://github.com/kaweezle/kaweezle">
+  <a href="https://www.kaweezle.com/">
     <img src="images/logo.svg" alt="Logo" width="80" height="80">
   </a>
   <h3 align="center">Kaweezle</h3>
@@ -22,7 +22,7 @@
   <p align="center">
     Run Vanilla Kubernetes on Windows with WSL 2 and Alpine Linux
     <br />
-    <a href="https://github.com/kaweezle/kaweezle"><strong>Explore the docs »</strong></a>
+    <a href="https://www.kaweezle.com/#/introduction"><strong>Explore the docs »</strong></a>
     <br />
     <br />
     <a href="https://github.com/kaweezle/kaweezle/issues">Report Bug</a>
