@@ -3,7 +3,7 @@ module github.com/kaweezle/kaweezle
 go 1.17
 
 require (
-	github.com/bitfield/script v0.18.4
+	github.com/bitfield/script v0.18.5
 	github.com/dustin/go-humanize v1.0.0
 	github.com/kyokomi/emoji v2.2.4+incompatible
 	github.com/pterm/pterm v0.12.37
