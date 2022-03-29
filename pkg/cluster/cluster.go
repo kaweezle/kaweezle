@@ -94,7 +94,11 @@ func StartCluster(distributionName string, logLevel string) (err error) {
 		"command":           startCommand,
 	}).Info("Starting kubernetes...")
 
-	_, err = wsl.LaunchAndPipe(distributionName, startCommand, true, startClusterFields)
+	var exitCode uint32
+	exitCode, err = wsl.LaunchAndPipe(distributionName, startCommand, true, startClusterFields)
+	if exitCode != 0 {
+		err = fmt.Errorf("command %v exited with error code %d", startCommand, exitCode)
+	}
 	log.WithError(err).WithFields(startClusterFields).Info("Kubernetes started")
 
 	return
