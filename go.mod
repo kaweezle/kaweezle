@@ -3,20 +3,20 @@ module github.com/kaweezle/kaweezle
 go 1.17
 
 require (
-	github.com/bitfield/script v0.18.4
+	github.com/bitfield/script v0.19.0
 	github.com/dustin/go-humanize v1.0.0
 	github.com/kyokomi/emoji v2.2.4+incompatible
-	github.com/pterm/pterm v0.12.37
+	github.com/pterm/pterm v0.12.39
 	github.com/sirupsen/logrus v1.8.1
-	github.com/spf13/cobra v1.3.0
+	github.com/spf13/cobra v1.4.0
 	github.com/spf13/pflag v1.0.5
 	github.com/spf13/viper v1.10.1
-	github.com/stretchr/testify v1.7.0
+	github.com/stretchr/testify v1.7.1
 	github.com/yuk7/wsllib-go v1.0.0
 	golang.org/x/text v0.3.7
-	k8s.io/api v0.23.4
-	k8s.io/apimachinery v0.23.4
-	k8s.io/client-go v0.23.4
+	k8s.io/api v0.23.5
+	k8s.io/apimachinery v0.23.5
+	k8s.io/client-go v0.23.5
 )
 
 require (
@@ -27,7 +27,7 @@ require (
 	github.com/go-logr/logr v1.2.0 // indirect
 	github.com/gogo/protobuf v1.3.2 // indirect
 	github.com/golang/protobuf v1.5.2 // indirect
-	github.com/google/go-cmp v0.5.6 // indirect
+	github.com/google/go-cmp v0.5.7 // indirect
 	github.com/google/gofuzz v1.1.0 // indirect
 	github.com/googleapis/gnostic v0.5.5 // indirect
 	github.com/gookit/color v1.4.2 // indirect
