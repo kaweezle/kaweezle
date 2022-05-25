@@ -141,12 +141,18 @@ func WaitForCluster(distributionName string, timeout time.Duration) (err error) 
 		"distribution_name": distributionName,
 	}).Info("Wait for kubernetes...")
 
-	var client *kubernetes.Clientset
-	if client, err = k8s.ClientSetForDistribution(distributionName); err != nil {
+	var client *k8s.RESTClientGetter
+	if client, err = k8s.NewRESTClientForDistribution(distributionName); err != nil {
 		return
 	}
 
-	err = waitForPodsReady(client, timeout, &waitClusterFields)
+	err = WaitForWorkloads(client, timeout, func(state bool, total int, ready, unready []*WorkloadState) {
+		log.WithFields(waitClusterFields).WithFields(log.Fields{
+			"total":   total,
+			"ready":   len(ready),
+			"unready": len(unready),
+		}).Infof("Workloads total: %d, ready: %d, unready: %d", total, len(ready), len(unready))
+	})
 
 	if err != nil {
 		log.WithError(err).WithFields(waitClusterFields).Error("Kubernetes not ready")

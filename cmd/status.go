@@ -16,12 +16,15 @@ limitations under the License.
 package cmd
 
 import (
+	"fmt"
+	"os"
+
 	"github.com/kaweezle/kaweezle/pkg/cluster"
 	"github.com/kaweezle/kaweezle/pkg/k8s"
 	"github.com/pterm/pterm"
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
-	"k8s.io/client-go/kubernetes"
+	"k8s.io/apimachinery/pkg/util/runtime"
 )
 
 // statusCmd represents the status command
@@ -35,18 +38,41 @@ var statusCmd = &cobra.Command{
 	Run: performStatus,
 }
 
+var waitReadiness = false
+
 func init() {
 	rootCmd.AddCommand(statusCmd)
 
-	// Here you will define your flags and configuration settings.
+	statusCmd.Flags().BoolVarP(&waitReadiness, "wait", "w", waitReadiness, "Wait n seconds for all pods to settle")
+}
 
-	// Cobra supports Persistent Flags which will work for this command
-	// and all subcommands, e.g.:
-	// statusCmd.PersistentFlags().String("foo", "", "A help for foo")
+var callbackCount = 0
 
-	// Cobra supports local flags which will only run when this command
-	// is called directly, e.g.:
-	// statusCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
+func callback(ok bool, count int, ready []*cluster.WorkloadState, unready []*cluster.WorkloadState) {
+	if callbackCount == 0 {
+		fmt.Printf("\n%d workloads, %d ready, %d unready\n", count, len(ready), len(unready))
+		for _, state := range ready {
+			fmt.Println(state.LongString())
+		}
+	} else {
+		if len(unready) > 0 {
+			fmt.Printf("\n%d unready workloads remaining:\n", len(unready))
+		} else {
+			fmt.Printf("\n🎉 All workloads (%d) ready:\n", count)
+			for _, state := range ready {
+				fmt.Println(state.LongString())
+			}
+		}
+	}
+
+	for _, state := range unready {
+		fmt.Println(state.LongString())
+	}
+
+	if !waitReadiness {
+		os.Exit(0)
+	}
+	callbackCount++
 }
 
 func performStatus(cmd *cobra.Command, args []string) {
@@ -54,15 +80,12 @@ func performStatus(cmd *cobra.Command, args []string) {
 	cobra.CheckErr(err)
 	log.Infof("Cluster %s is %v.", pterm.Bold.Sprint(DistributionName), pterm.Bold.Sprint(status))
 	if status == cluster.Started {
-		var client *kubernetes.Clientset
-		client, err = k8s.ClientSetForDistribution(DistributionName)
+		runtime.ErrorHandlers = runtime.ErrorHandlers[:0]
+
+		var client *k8s.RESTClientGetter
+
+		client, err = k8s.NewRESTClientForDistribution(DistributionName)
 		cobra.CheckErr(err)
-		active, unready, stopped, err := k8s.GetPodStatus(client)
-		cobra.CheckErr(err)
-		log.WithFields(log.Fields{
-			"active":  len(active),
-			"unready": len(unready),
-			"stopped": len(stopped),
-		}).Info("Pods status")
+		cluster.WaitForWorkloads(client, 0, callback)
 	}
 }
