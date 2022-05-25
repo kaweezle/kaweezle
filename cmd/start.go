@@ -23,6 +23,7 @@ import (
 	"github.com/kaweezle/kaweezle/pkg/rootfs"
 	"github.com/kaweezle/kaweezle/pkg/wsl"
 	log "github.com/sirupsen/logrus"
+	"k8s.io/apimachinery/pkg/util/runtime"
 
 	"github.com/spf13/cobra"
 )
@@ -67,6 +68,7 @@ func performStart(cmd *cobra.Command, args []string) {
 		cobra.CheckErr(k8s.MergeKubernetesConfig(DistributionName))
 	}
 	if ClusterWaitTimeout > 0 {
+		runtime.ErrorHandlers = runtime.ErrorHandlers[:0]
 		cobra.CheckErr(cluster.WaitForCluster(DistributionName, time.Second*time.Duration(ClusterWaitTimeout)))
 	} else {
 		log.WithField("distrib_name", DistributionName).Info("No wait for cluster settling")

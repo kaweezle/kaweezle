@@ -49,7 +49,7 @@ var rootCmd = &cobra.Command{
 kaweezle status
 kaweezle -v debug start
 `,
-	Version: "v0.3.7", // <---VERSION--->
+	Version: "v0.3.8", // <---VERSION--->
 	// Uncomment the following line if your bare application
 	// has an action associated with it:
 	// Run: func(cmd *cobra.Command, args []string) { },
