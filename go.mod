@@ -3,15 +3,15 @@ module github.com/kaweezle/kaweezle
 go 1.17
 
 require (
-	github.com/bitfield/script v0.20.0
+	github.com/bitfield/script v0.20.2
 	github.com/dustin/go-humanize v1.0.0
 	github.com/kyokomi/emoji v2.2.4+incompatible
-	github.com/pterm/pterm v0.12.40
+	github.com/pterm/pterm v0.12.42
 	github.com/sirupsen/logrus v1.8.1
-	github.com/spf13/cobra v1.4.0
+	github.com/spf13/cobra v1.5.0
 	github.com/spf13/pflag v1.0.5
 	github.com/spf13/viper v1.11.0
-	github.com/stretchr/testify v1.7.1
+	github.com/stretchr/testify v1.7.4
 	github.com/yuk7/wsllib-go v1.0.0
 	golang.org/x/text v0.3.7
 	k8s.io/api v0.24.2
@@ -22,13 +22,15 @@ require (
 )
 
 require (
+	atomicgo.dev/cursor v0.1.1 // indirect
+	atomicgo.dev/keyboard v0.2.8 // indirect
 	bitbucket.org/creachadair/shell v0.0.7 // indirect
 	github.com/Azure/go-ansiterm v0.0.0-20210617225240-d185dfc1b5a1 // indirect
 	github.com/MakeNowJust/heredoc v0.0.0-20170808103936-bb23615498cd // indirect
 	github.com/PuerkitoBio/purell v1.1.1 // indirect
 	github.com/PuerkitoBio/urlesc v0.0.0-20170810143723-de5bf2ad4578 // indirect
-	github.com/atomicgo/cursor v0.0.1 // indirect
 	github.com/chai2010/gettext-go v0.0.0-20160711120539-c6fed771bfd5 // indirect
+	github.com/containerd/console v1.0.3 // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/emicklei/go-restful v2.9.5+incompatible // indirect
 	github.com/evanphx/json-patch v4.12.0+incompatible // indirect
@@ -58,6 +60,7 @@ require (
 	github.com/josharian/intern v1.0.0 // indirect
 	github.com/json-iterator/go v1.1.12 // indirect
 	github.com/liggitt/tabwriter v0.0.0-20181228230101-89fcab3d43de // indirect
+	github.com/lithammer/fuzzysearch v1.1.5 // indirect
 	github.com/magiconair/properties v1.8.6 // indirect
 	github.com/mailru/easyjson v0.7.6 // indirect
 	github.com/mattn/go-runewidth v0.0.13 // indirect
@@ -93,7 +96,7 @@ require (
 	gopkg.in/inf.v0 v0.9.1 // indirect
 	gopkg.in/ini.v1 v1.66.4 // indirect
 	gopkg.in/yaml.v2 v2.4.0 // indirect
-	gopkg.in/yaml.v3 v3.0.0-20210107192922-496545a6307b // indirect
+	gopkg.in/yaml.v3 v3.0.1 // indirect
 	k8s.io/component-base v0.24.2 // indirect
 	k8s.io/klog/v2 v2.60.1 // indirect
 	k8s.io/kube-openapi v0.0.0-20220328201542-3ee0da9b0b42 // indirect
