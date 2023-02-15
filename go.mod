@@ -13,7 +13,7 @@ require (
 	github.com/spf13/viper v1.12.0
 	github.com/stretchr/testify v1.8.0
 	github.com/yuk7/wsllib-go v1.0.0
-	golang.org/x/text v0.5.0
+	golang.org/x/text v0.7.0
 	k8s.io/api v0.26.1
 	k8s.io/apimachinery v0.26.1
 	k8s.io/cli-runtime v0.26.1
