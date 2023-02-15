@@ -5,7 +5,7 @@ Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
 You may obtain a copy of the License at
 
-    http://www.apache.org/licenses/LICENSE-2.0
+	http://www.apache.org/licenses/LICENSE-2.0
 
 Unless required by applicable law or agreed to in writing, software
 distributed under the License is distributed on an "AS IS" BASIS,
@@ -34,8 +34,9 @@ import (
 const (
 	HomeDirName       = "kaweezle"
 	TarFilename       = "rootfs.tar.gz"
-	RootFSURL         = "https://github.com/kaweezle/kaweezle-rootfs/releases/download/latest/" + TarFilename
-	RootFSChecksumURL = RootFSURL + ".sha256"
+	RemoteTarFilename = "kaweezle.rootfs.tar.gz"
+	RootFSURL         = "https://github.com/kaweezle/iknite/releases/latest/download/" + RemoteTarFilename
+	RootFSChecksumURL = "https://github.com/kaweezle/iknite/releases/latest/download/SHA256SUMS"
 )
 
 var (
@@ -50,7 +51,17 @@ func EnsureHomeDir(homeDir string) (err error) {
 	return
 }
 
-func getReleaseChecksum() (checksum string, err error) {
+func checksumForFile(sums []byte, name string) string {
+	for _, line := range strings.Split(string(sums), "\n") {
+		parts := strings.Fields(line)
+		if len(parts) > 1 && parts[1] == name {
+			return parts[0]
+		}
+	}
+	return ""
+}
+
+func getReleaseChecksum(filename string) (checksum string, err error) {
 	var resp *http.Response
 	if resp, err = http.DefaultClient.Get(RootFSChecksumURL); err != nil {
 		return
@@ -61,7 +72,7 @@ func getReleaseChecksum() (checksum string, err error) {
 	if resp.StatusCode == http.StatusOK {
 		var bodyBytes []byte
 		if bodyBytes, err = io.ReadAll(resp.Body); err == nil {
-			checksum = strings.TrimSpace(string(bodyBytes))
+			checksum = checksumForFile(bodyBytes, filename)
 		}
 	}
 
@@ -116,7 +127,7 @@ func EnsureRootFS(path string, fields *log.Fields) (err error) {
 		"checksum": currentChecksum,
 	}).Info("Root FS exists: ", currentExists)
 
-	if onlineChecksum, err = getReleaseChecksum(); err != nil {
+	if onlineChecksum, err = getReleaseChecksum(RemoteTarFilename); err != nil {
 		return
 	}
 
