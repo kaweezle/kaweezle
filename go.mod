@@ -4,7 +4,7 @@ go 1.18
 
 require (
 	github.com/bitfield/script v0.20.2
-	github.com/dustin/go-humanize v1.0.0
+	github.com/dustin/go-humanize v1.0.1
 	github.com/kyokomi/emoji v2.2.4+incompatible
 	github.com/pterm/pterm v0.12.45
 	github.com/sirupsen/logrus v1.9.0
