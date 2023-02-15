@@ -17,32 +17,35 @@ builds:
       - amd64
       # - arm
       # - arm64
-    mod_timestamp: '{{ .CommitTimestamp }}'
+    mod_timestamp: "{{ .CommitTimestamp }}"
     flags:
       - -trimpath
     ldflags:
       - -s -w -X main.version={{.Version}} -X main.commit={{.Commit}} -X main.date={{ .CommitDate }} -X main.builtBy=pterm
 checksum:
-  name_template: '{{ .ProjectName }}_checksums.txt'
+  name_template: "{{ .ProjectName }}_checksums.txt"
 snapshot:
   name_template: "{{ incpatch .Version }}-devel"
 changelog:
   sort: asc
   filters:
     exclude:
-      - '^docs'
-      - '^test'
-      - '^ci'
-      - '^refactor'
+      - "^docs"
+      - "^test"
+      - "^ci"
+      - "^refactor"
       - Merge pull request
       - Merge branch
       - go mod tidy
 archives:
-  - name_template: '{{ .ProjectName }}_{{ .Os }}_{{ .Arch }}{{ if .Arm }}v{{ .Arm }}{{ end }}'
-    replacements:
-      darwin: Darwin
-      linux: Linux
-      windows: Windows
+  - name_template: >-
+      {{ .ProjectName }}_
+      {{- if eq .Os "darwin" }}Darwin
+      {{- else if eq .Os "linux" }}Linux
+      {{- else if eq .Os "windows" }}Windows
+      {{- else }}{{ .Os }}{{ end }}_
+      {{ .Arch }}
+      {{ if .Arm }}v{{ .Arm }}{{ end }}'
     format_overrides:
       - goos: windows
         format: zip
