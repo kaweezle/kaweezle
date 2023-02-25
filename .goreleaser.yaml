@@ -44,8 +44,8 @@ archives:
       {{- else if eq .Os "linux" }}Linux
       {{- else if eq .Os "windows" }}Windows
       {{- else }}{{ .Os }}{{ end }}_
-      {{ .Arch }}
-      {{ if .Arm }}v{{ .Arm }}{{ end }}'
+      {{- .Arch }}
+      {{- if .Arm }}v{{ .Arm }}{{ end }}
     format_overrides:
       - goos: windows
         format: zip
