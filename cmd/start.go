@@ -5,7 +5,7 @@ Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
 You may obtain a copy of the License at
 
-    http://www.apache.org/licenses/LICENSE-2.0
+	http://www.apache.org/licenses/LICENSE-2.0
 
 Unless required by applicable law or agreed to in writing, software
 distributed under the License is distributed on an "AS IS" BASIS,
@@ -16,12 +16,14 @@ limitations under the License.
 package cmd
 
 import (
+	"os"
 	"time"
 
 	"github.com/kaweezle/kaweezle/pkg/cluster"
 	"github.com/kaweezle/kaweezle/pkg/k8s"
 	"github.com/kaweezle/kaweezle/pkg/rootfs"
 	"github.com/kaweezle/kaweezle/pkg/wsl"
+	"github.com/pkg/errors"
 	log "github.com/sirupsen/logrus"
 	"k8s.io/apimachinery/pkg/util/runtime"
 
@@ -46,8 +48,10 @@ var startCmd = &cobra.Command{
 
 func init() {
 	rootCmd.AddCommand(startCmd)
-	startCmd.Flags().StringVarP(&rootfs.TarFilePath, "root", "r", rootfs.DefaultTarFilePath, "The root file system to install")
-	startCmd.Flags().IntVarP(&ClusterWaitTimeout, "timeout", "t", DefaultClusterWaitTimeout, "The time (in seconds) to wait for the cluster to settle")
+	flags := startCmd.Flags()
+
+	flags.StringVarP(&rootfs.TarFilePath, "root", "r", rootfs.DefaultTarFilePath, "The root file system to install")
+	flags.IntVarP(&ClusterWaitTimeout, "timeout", "t", DefaultClusterWaitTimeout, "The time (in seconds) to wait for the cluster to settle")
 }
 
 func performStart(cmd *cobra.Command, args []string) {
@@ -55,7 +59,16 @@ func performStart(cmd *cobra.Command, args []string) {
 	cobra.CheckErr(err)
 	if status != cluster.Started {
 		if status == cluster.Uninstalled {
-			cobra.CheckErr(rootfs.EnsureRootFS(rootfs.TarFilePath, &UpdateRootFSFields))
+			if rootfs.TarFilePath == "" {
+				rootfs.TarFilePath = rootfs.DefaultTarFilePath
+				cobra.CheckErr(rootfs.EnsureRootFS(rootfs.TarFilePath, &UpdateRootFSFields))
+			} else {
+				// Check if rootfs.TarFilePath is a valid file path
+				if _, err := os.Stat(rootfs.TarFilePath); os.IsNotExist(err) {
+					cobra.CheckErr(errors.Wrapf(err, "rootfs file %s does not exist", rootfs.TarFilePath))
+				}
+			}
+
 			installationDir, err := rootfs.EnsureWSLDirectory(rootfs.HomeDir, DistributionName)
 			cobra.CheckErr(err)
 			cobra.CheckErr(wsl.RegisterDistribution(DistributionName, rootfs.TarFilePath, installationDir))

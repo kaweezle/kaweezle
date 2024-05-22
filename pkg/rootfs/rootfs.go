@@ -19,7 +19,6 @@ import (
 	"crypto/sha256"
 	"fmt"
 	"io"
-	"io/ioutil"
 	"net/http"
 	"os"
 	"path/filepath"
@@ -35,14 +34,14 @@ const (
 	HomeDirName       = "kaweezle"
 	TarFilename       = "rootfs.tar.gz"
 	RemoteTarFilename = "kaweezle.rootfs.tar.gz"
-	RootFSURL         = "https://github.com/kaweezle/iknite/releases/latest/download/" + RemoteTarFilename
+	RootFsUrl         = "https://github.com/kaweezle/iknite/releases/latest/download/" + RemoteTarFilename
 	RootFSChecksumURL = "https://github.com/kaweezle/iknite/releases/latest/download/SHA256SUMS"
 )
 
 var (
 	HomeDir             = filepath.Join(os.Getenv("LOCALAPPDATA"), HomeDirName)
 	DefaultTarFilePath  = filepath.Join(HomeDir, TarFilename)
-	TarFilePath         = DefaultTarFilePath
+	TarFilePath         = ""
 	TarFileChecksumPath = TarFilePath + ".sha256"
 )
 
@@ -149,17 +148,17 @@ func EnsureRootFS(path string, fields *log.Fields) (err error) {
 	log.WithFields(log.Fields{
 		"rootFS":    tarFilePath,
 		"checksum":  onlineChecksum,
-		"rootFSURL": RootFSURL,
-	}).Info("Donloading Root FS")
+		"rootFsUrl": RootFsUrl,
+	}).Info("Downloading Root FS")
 
-	if resp, err = http.DefaultClient.Get(RootFSURL); err != nil {
+	if resp, err = http.DefaultClient.Get(RootFsUrl); err != nil {
 		return
 	}
 
 	defer resp.Body.Close()
 
 	var rootFSTemp *os.File
-	if rootFSTemp, err = ioutil.TempFile(homeDir, "rootfs"); err != nil {
+	if rootFSTemp, err = os.CreateTemp(homeDir, "rootfs"); err != nil {
 		return
 	}
 	defer rootFSTemp.Close()
@@ -190,7 +189,7 @@ func EnsureRootFS(path string, fields *log.Fields) (err error) {
 	}).Trace("Checksums")
 
 	if downloadedChecksum != onlineChecksum {
-		err = fmt.Errorf("bad checksum for url %s. Expected %s, got %s", RootFSURL, onlineChecksum, downloadedChecksum)
+		err = fmt.Errorf("bad checksum for url %s. Expected %s, got %s", RootFsUrl, onlineChecksum, downloadedChecksum)
 		return
 	}
 
