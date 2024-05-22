@@ -88,7 +88,7 @@ func GetClusterStatus(distributionName string) (status ClusterStatus, err error)
 }
 
 func StartCluster(distributionName string, logLevel string) (err error) {
-	startCommand := fmt.Sprintf("/sbin/iknite '--json' -v %s '--name' %s start", logLevel, distributionName)
+	startCommand := fmt.Sprintf("/sbin/iknite '--json' -v %s '--cluster-name' %s start", logLevel, distributionName)
 	log.WithFields(startClusterFields).WithFields(log.Fields{
 		"distribution_name": distributionName,
 		"command":           startCommand,
@@ -108,8 +108,29 @@ func StopCluster(distributionName string) (err error) {
 	log.WithFields(stopClusterFields).WithFields(log.Fields{
 		"distribution_name": distributionName,
 	}).Info("Stopping kubernetes...")
-	err = wsl.StopDistribution(distributionName)
-	log.WithError(err).WithFields(stopClusterFields).Info("Kubernetes stopped")
+	var info wsl.DistributionInformation
+	info, err = wsl.GetDistribution(distributionName)
+	if err != nil {
+		return
+	}
+	if info.State != wsl.Running {
+		log.WithFields(stopClusterFields).Warnf("Distribution %s not running", distributionName)
+		return
+	} else {
+		stopCommand := "/sbin/rc-service iknite stop"
+		log.WithFields(stopClusterFields).WithFields(log.Fields{
+			"distribution_name": distributionName,
+			"command":           stopCommand,
+		}).Info("Stopping kubernetes...")
+		var exitCode uint32
+		exitCode, _ = wsl.LaunchAndPipe(distributionName, stopCommand, true, stopClusterFields)
+		if exitCode != 0 {
+			err = fmt.Errorf("command %v exited with error code %d", stopCommand, exitCode)
+			log.WithError(err).WithFields(stopClusterFields).Info("Kubernetes stopped")
+		}
+		err = wsl.StopDistribution(distributionName)
+		log.WithError(err).WithFields(stopClusterFields).Info("Kubernetes stopped")
+	}
 	return
 }
 

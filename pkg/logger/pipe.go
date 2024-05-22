@@ -5,7 +5,7 @@ Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
 You may obtain a copy of the License at
 
-    http://www.apache.org/licenses/LICENSE-2.0
+	http://www.apache.org/licenses/LICENSE-2.0
 
 Unless required by applicable law or agreed to in writing, software
 distributed under the License is distributed on an "AS IS" BASIS,
@@ -91,7 +91,7 @@ func PipeLogs(rout io.Reader, fields log.Fields) {
 				log.WithError(err).WithField("parsedLog", parsedLogEntry).Warn("Couldn't parse log")
 			}
 		} else {
-			log.WithError(err).WithField("line", string(line)).Warnf("Cannot parse output line: %v", string(line))
+			log.WithFields(fields).Info(string(line))
 		}
 	}
 }
