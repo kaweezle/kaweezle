@@ -1,0 +1,41 @@
+// Generate with the following command:
+// protoc --go-grpc_out=. --go_out=. --go_opt=paths=source_relative --go-grpc_opt=paths=source_relative *.proto
+syntax = "proto3";
+
+package config;
+
+option go_package="github.com/kaweezle/kaweezle/pkg/config";
+
+service ElevatedConfiguration {
+  rpc AddRoute(AddRouteRequest) returns (AddRouteResponse) {}
+  rpc ConfigureDomains(ConfigureDomainsRequest) returns (ConfigureDomainsResponse) {}
+  rpc Stop(StopRequest) returns (StopResponse) {}
+}
+
+message AddRouteRequest {
+    string fixedAddress = 1;
+    string netmask = 2;
+    string gateway = 3;
+}
+
+message AddRouteResponse {
+
+}
+
+message ConfigureDomainsRequest {
+    string distributionName = 1;
+    string ipAddress = 2;
+    repeated string domains = 3;
+    bool remove = 4;
+}
+
+message ConfigureDomainsResponse {
+    repeated string domains = 1;
+}
+
+message StopRequest {
+    int32 timeout = 1;
+}
+
+message StopResponse {
+}

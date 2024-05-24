@@ -55,7 +55,7 @@ func (logEntry *ParsedLogEntry) LogEntry() (entry *log.Entry, err error) {
 								err = fmt.Errorf("there is no message entry")
 							}
 						} else {
-							err = fmt.Errorf("unkown log level: %s", levelString)
+							err = fmt.Errorf("unknown log level: %s", levelString)
 						}
 					} else {
 						err = fmt.Errorf("bad type for level: %v", rawLevel)

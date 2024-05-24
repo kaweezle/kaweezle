@@ -11,7 +11,9 @@
             "mode": "auto",
             "program": "${workspaceFolder}",
             "args": [
-                "start"
+                "configure",
+                "domains",
+                "argocd.octave.software"
             ],
         }
     ]

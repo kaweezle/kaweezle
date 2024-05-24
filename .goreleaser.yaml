@@ -49,16 +49,16 @@ archives:
     format_overrides:
       - goos: windows
         format: zip
-scoop:
-  bucket:
-    owner: kaweezle
-    name: scoop-bucket
-    branch: main
-    token: "{{ .Env.SCOOP_BUCKET_GITHUB_TOKEN }}"
-  commit_author:
-    name: Antoine Martin
-    email: antoine@openance.com
-  commit_msg_template: "Scoop update for {{ .ProjectName }} version {{ .Tag }}"
-  homepage: https://github.com/kaweezle/kaweezle
-  description: "WSL 2 Kubernetes distribution (Alpine based)"
-  license: Apache-2.0
+scoops:
+  - repository:
+      owner: kaweezle
+      name: scoop-bucket
+      branch: main
+      token: "{{ .Env.SCOOP_BUCKET_GITHUB_TOKEN }}"
+    commit_author:
+      name: Antoine Martin
+      email: antoine@openance.com
+    commit_msg_template: "Scoop update for {{ .ProjectName }} version {{ .Tag }}"
+    homepage: https://github.com/kaweezle/kaweezle
+    description: "WSL 2 Kubernetes distribution (Alpine based)"
+    license: Apache-2.0

@@ -5,7 +5,7 @@ Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
 You may obtain a copy of the License at
 
-    http://www.apache.org/licenses/LICENSE-2.0
+	http://www.apache.org/licenses/LICENSE-2.0
 
 Unless required by applicable law or agreed to in writing, software
 distributed under the License is distributed on an "AS IS" BASIS,
@@ -26,6 +26,7 @@ import (
 
 	"github.com/kyokomi/emoji"
 	"github.com/pterm/pterm"
+	"github.com/samber/lo"
 	log "github.com/sirupsen/logrus"
 )
 
@@ -143,29 +144,26 @@ func ellipsize(str string, max int) string {
 	return str
 }
 
-func (f *PTermFormatter) FormatFields(entry *log.Entry, l int, flp string, style *pterm.Style) string {
+func (f *PTermFormatter) FormatFields(data log.Fields, l int, flp string, style *pterm.Style) string {
 	b := &bytes.Buffer{}
 
-	var keys []string = make([]string, 0, len(entry.Data))
-	for k := range entry.Data {
-		keys = append(keys, k)
-	}
+	var keys []string = lo.Keys(data)
 	sort.Strings(keys)
 
 	ll := 0
-	flpl := len(flp)
+	flpLength := len(flp)
 	for i, key := range keys {
 
 		bb := &bytes.Buffer{}
-		f.appendKeyValue(bb, key, entry.Data[key])
+		f.appendKeyValue(bb, key, data[key])
 		vl := len(bb.String())
 		bb.Reset()
-		f.appendKeyValue(bb, style.Sprint(key), entry.Data[key])
+		f.appendKeyValue(bb, style.Sprint(key), data[key])
 		if i > 0 {
 			if ll+vl >= l {
 				b.WriteByte('\n')
 				b.WriteString(flp)
-				ll = vl + flpl
+				ll = vl + flpLength
 			} else {
 				b.WriteByte(' ')
 				ll += 1 + vl
@@ -202,11 +200,11 @@ func (f *PTermFormatter) appendValue(b *bytes.Buffer, value interface{}) {
 			fmt.Fprintf(b, "%s%v%s", QuoteCharacter, value, QuoteCharacter)
 		}
 	case error:
-		errmsg := value.Error()
-		if !f.needsQuoting(errmsg) {
-			b.WriteString(errmsg)
+		errorMessage := value.Error()
+		if !f.needsQuoting(errorMessage) {
+			b.WriteString(errorMessage)
 		} else {
-			fmt.Fprintf(b, "%s%v%s", QuoteCharacter, errmsg, QuoteCharacter)
+			fmt.Fprintf(b, "%s%v%s", QuoteCharacter, errorMessage, QuoteCharacter)
 		}
 	default:
 		fmt.Fprint(b, value)
@@ -255,8 +253,11 @@ func (f *PTermFormatter) Format(entry *log.Entry) (b []byte, err error) {
 	} else {
 		prefix := LevelPrefixes[entry.Level]
 		pterm.Println(prefix.Style.Sprint(prefix.Text), prefix.Style.Sprint(transformed))
-		if f.ShowFields && len(entry.Data) > 0 {
-			pterm.Println(pterm.Gray(FieldsPrefix, f.FormatFields(entry, pterm.GetTerminalWidth(), "   ", prefix.Style)))
+		fields := lo.OmitBy(entry.Data, func(k string, v any) bool {
+			return k == "error" && v == nil
+		})
+		if f.ShowFields && len(fields) > 0 {
+			pterm.Println(pterm.Gray(FieldsPrefix, f.FormatFields(fields, pterm.GetTerminalWidth(), "   ", prefix.Style)))
 		}
 	}
 
