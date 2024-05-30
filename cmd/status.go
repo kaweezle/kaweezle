@@ -5,7 +5,7 @@ Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
 You may obtain a copy of the License at
 
-    http://www.apache.org/licenses/LICENSE-2.0
+	http://www.apache.org/licenses/LICENSE-2.0
 
 Unless required by applicable law or agreed to in writing, software
 distributed under the License is distributed on an "AS IS" BASIS,
@@ -27,24 +27,25 @@ import (
 	"k8s.io/apimachinery/pkg/util/runtime"
 )
 
-// statusCmd represents the status command
-var statusCmd = &cobra.Command{
-	Use:   "status",
-	Short: "Current status of the cluster",
-	Long: `Gives the status of the cluster. Example:
-
-> kaweezle status
-`,
-	Run: performStatus,
-}
-
-var waitReadiness = false
-
-func init() {
-	rootCmd.AddCommand(statusCmd)
+// NewStatusCommand creates a new status command
+func NewStatusCommand() *cobra.Command {
+	var statusCmd = &cobra.Command{
+		Use:   "status",
+		Short: "Current status of the cluster",
+		Long: `Gives the status of the cluster. Example:
+	
+	> kaweezle status
+	`,
+		Run: performStatus,
+	}
 
 	statusCmd.Flags().BoolVarP(&waitReadiness, "wait", "w", waitReadiness, "Wait n seconds for all pods to settle")
+	return statusCmd
 }
+
+// statusCmd represents the status command
+
+var waitReadiness = false
 
 var callbackCount = 0
 

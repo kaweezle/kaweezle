@@ -86,6 +86,11 @@ func Configure(distributionName string, options *ConfigurationOptions) error {
 		return errors.Wrap(err, "failed to configure kustomize url")
 	}
 
+	err = AddSshHosts(distributionName, options.SshHosts)
+	if err != nil {
+		return errors.Wrap(err, "failed to add ssh hosts")
+	}
+
 	err = RouteToWSL(distributionName, options.PersistentIPAddress)
 	if err != nil {
 		return errors.Wrap(err, "failed to add route")
@@ -156,4 +161,18 @@ func ConfigureDomains(distributionName, ipAddress string, domains []string, remo
 	}
 
 	return domains, nil
+}
+
+func AddSshHosts(distributionName string, sshHosts []string) error {
+	if len(sshHosts) == 0 {
+		return nil
+	}
+	hosts := strings.Join(sshHosts, " ")
+	output, err := wsl.WslCommand(distributionName, "sh", "-c", fmt.Sprintf("mkdir -p /root/.ssh; ssh-keyscan %s > /root/.ssh/known_hosts; chmod 600 /root/.ssh/known_hosts; ", hosts))
+	if err != nil {
+		err = errors.Wrapf(err, "failed to add ssh hosts %s", output)
+	}
+
+	log.WithError(err).WithField("ssh_hosts", hosts).WithField("distribution", distributionName).Info("Added ssh hosts")
+	return err
 }

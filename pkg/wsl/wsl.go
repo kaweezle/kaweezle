@@ -212,7 +212,7 @@ func WslPipe(input string, distributionName string, arg ...string) error {
 	return cmd.Run()
 }
 
-func WslCommand(input string, distributionName string, arg ...string) ([]byte, error) {
+func WslCommand(distributionName string, arg ...string) ([]byte, error) {
 	newArgs := []string{"-u", "root", "-d", distributionName}
 	newArgs = append(newArgs, arg...)
 	cmd := exec.Command(FindWSL(), newArgs...)
@@ -256,7 +256,7 @@ func RegisterDistribution(name string, rootfs string, path string) (err error) {
 		logger.TaskKey: "WSL Registration",
 	}
 
-	log.WithFields(fields).Infof("Registering %s in %s", name, path)
+	log.WithFields(fields).Infof("Registering %s in %s from %s", name, path, rootfs)
 
 	if out, err = exec.Command(FindWSL(), "--import", name, path, rootfs).Output(); err == nil {
 		enc := unicode.UTF16(unicode.LittleEndian, unicode.IgnoreBOM)

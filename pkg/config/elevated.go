@@ -109,7 +109,7 @@ func StartElevatedServer() (ElevatedConfigurationClient, error) {
 			for {
 				conn, err := winio.DialPipe(pipeName, nil)
 				if err == nil {
-					logrus.WithFields(startElevatedFields).WithField("pipe_name", pipeName).Info("Connected to elevated server.")
+					logrus.WithFields(startElevatedFields).WithError(nil).WithField("pipe_name", pipeName).Info("Connected to elevated server.")
 					return conn, err
 				}
 				time.Sleep(200 * time.Millisecond)

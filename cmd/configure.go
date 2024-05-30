@@ -17,6 +17,7 @@ package cmd
 
 import (
 	"fmt"
+	"os"
 
 	"github.com/Microsoft/go-winio"
 	"github.com/kaweezle/kaweezle/pkg/cluster"
@@ -30,84 +31,107 @@ import (
 
 var RemoveDomains bool
 
-// startCmd represents the start command
-var configureCmd = &cobra.Command{
-	Use:   "configure",
-	Short: "Configure the cluster",
-	Long:  `Set the configuration properties of the cluster.`,
-	Run:   performConfigure,
-}
+// NewConfigureCommand creates a new configure command
+func NewConfigureCommand() *cobra.Command {
+	configureCmd := &cobra.Command{
+		Use:   "configure",
+		Short: "Configure the cluster",
+		Long:  `Set the configuration properties of the cluster.`,
+		Run:   performConfigure,
+	}
 
-// routeCmd represents the route command
-var routeCmd = &cobra.Command{
-	Use:   "route [ip-address]",
-	Args:  cobra.MaximumNArgs(1),
-	Short: "Add route to the cluster ingress IP address",
-	Long:  `Add route to the cluster ingress IP address.`,
-	Run:   performRoute,
-}
+	routeCmd := &cobra.Command{
+		Use:   "route [ip-address]",
+		Args:  cobra.MaximumNArgs(1),
+		Short: "Add route to the cluster ingress IP address",
+		Long:  `Add route to the cluster ingress IP address.`,
+		Run:   performRoute,
+	}
 
-var ageCmd = &cobra.Command{
-	Use:   "age [age-key-file]",
-	Args:  cobra.ExactArgs(1),
-	Short: "Add age key file to the cluster",
-	Long: `Add age key file to the cluster. 
-This command will copy the age key file to the cluster and update the configuration file to use it.`,
-	Run: performAge,
-}
+	ageCmd := &cobra.Command{
+		Use:   "age [age-key-file]",
+		Args:  cobra.ExactArgs(1),
+		Short: "Add age key file to the cluster",
+		Long: `Add age key file to the cluster. 
+	This command will copy the age key file to the cluster and update the configuration file to use it.`,
+		Run: performAge,
+	}
 
-var sshCmd = &cobra.Command{
-	Use:   "ssh [ssh-key-file]",
-	Args:  cobra.ExactArgs(1),
-	Short: "Add ssh key file to the cluster",
-	Long: `Add ssh key file to the cluster.
-This command will copy the ssh key file to the cluster.`,
-	Run: performSsh,
-}
+	sshCmd := &cobra.Command{
+		Use:   "ssh [ssh-key-file]",
+		Args:  cobra.ExactArgs(1),
+		Short: "Add ssh key file to the cluster",
+		Long: `Add ssh key file to the cluster.
+	This command will copy the ssh key file to the cluster.`,
+		Run: performSsh,
+	}
 
-var kustomizeCmd = &cobra.Command{
-	Use:   "kustomize [kustomize-url]",
-	Args:  cobra.ExactArgs(1),
-	Short: "Add kustomize url to the cluster",
-	Long: `Add kustomize url to the cluster.
-This command will set the kustomize url in the configuration file.`,
-	Run: performKustomize,
-}
+	kustomizeCmd := &cobra.Command{
+		Use:   "kustomize [kustomize-url]",
+		Args:  cobra.ExactArgs(1),
+		Short: "Add kustomize url to the cluster",
+		Long: `Add kustomize url to the cluster.
+	This command will set the kustomize url in the configuration file.`,
+		Run: performKustomize,
+	}
 
-var domainsCommand = &cobra.Command{
-	Use:   "domains [domain...]",
-	Args:  cobra.MinimumNArgs(0),
-	Short: "Bind domain names to the cluster ingress IP address",
-	Long: `Bind domain names to the cluster ingress IP address.
-This command will bind or remove domain names to the cluster ingress IP address.`,
-	Run: performDomains,
-}
+	domainsCommand := &cobra.Command{
+		Use:   "domains [domain...]",
+		Args:  cobra.MinimumNArgs(0),
+		Short: "Bind domain names to the cluster ingress IP address",
+		Long: `Bind domain names to the cluster ingress IP address.
+	This command will bind or remove domain names to the cluster ingress IP address.`,
+		Run: performDomains,
+	}
 
-var elevateCommand = &cobra.Command{
-	Use:   "elevate [pipe-name]",
-	Args:  cobra.ExactArgs(1),
-	Short: "Create an elevated server listening on the specified pipe",
-	Long: `Create a GRPC Server listening on the specified windows pipe name.
-The command MUST be run from an elevated prompt.
-`,
-	Run: performElevate,
-}
+	elevateCommand := &cobra.Command{
+		Use:   "elevate [pipe-name]",
+		Args:  cobra.ExactArgs(1),
+		Short: "Create an elevated server listening on the specified pipe",
+		Long: `Create a GRPC Server listening on the specified windows pipe name.
+	The command MUST be run from an elevated prompt.
+	`,
+		Run: performElevate,
+	}
 
-func init() {
-	rootCmd.AddCommand(configureCmd)
+	printCommand := &cobra.Command{
+		Use:   "print",
+		Args:  cobra.ExactArgs(0),
+		Short: "Print the current configuration",
+		Long: `Print the current configuration in YAML format in order to be able
+	to save it.
+	`,
+		Run: performPrint,
+	}
+
+	sshHostsCommand := &cobra.Command{
+		Use:   "ssh-hosts [ssh-hosts...]",
+		Args:  cobra.MinimumNArgs(0),
+		Short: "Add ssh hosts to the cluster",
+		Long: `Add ssh hosts to the cluster.
+This command will add the ssh hosts to the ~/.ssh/known_hosts file.`,
+		Run: performSshHosts,
+	}
+
 	flags := configureCmd.Flags()
 
 	AddConfigurationFlags(flags, ConfigurationOptions)
-	bindFlags(configureCmd, viper.GetViper())
+	AddConfigurationFlags(printCommand.Flags(), ConfigurationOptions)
+
 	configureCmd.AddCommand(routeCmd)
 	configureCmd.AddCommand(ageCmd)
 	configureCmd.AddCommand(sshCmd)
 	configureCmd.AddCommand(kustomizeCmd)
 	configureCmd.AddCommand(domainsCommand)
 	configureCmd.AddCommand(elevateCommand)
+	configureCmd.AddCommand(printCommand)
+	configureCmd.AddCommand(sshHostsCommand)
 
-	domainsCommand.Flags().StringVar(&ConfigurationOptions.PersistentIPAddress, "ip-address", ConfigurationOptions.PersistentIPAddress, "The persistent IP address to use for the WSL distribution")
-	domainsCommand.Flags().BoolVarP(&RemoveDomains, "remove", "r", false, "Remove the domain names")
+	flags = domainsCommand.Flags()
+	flags.StringVar(&ConfigurationOptions.PersistentIPAddress, "ip-address", ConfigurationOptions.PersistentIPAddress, "The persistent IP address to use for the WSL distribution")
+	flags.BoolVarP(&RemoveDomains, "remove", "r", false, "Remove the domain names")
+
+	return configureCmd
 }
 
 func performConfigure(cmd *cobra.Command, args []string) {
@@ -191,4 +215,22 @@ func performElevate(cmd *cobra.Command, args []string) {
 		log.Fatalf("failed to serve: %v", err)
 	}
 
+}
+
+func performPrint(cmd *cobra.Command, args []string) {
+	file, err := os.CreateTemp(os.Getenv("TEMP"), commandName)
+	cobra.CheckErr(err)
+	defer os.Remove(file.Name())
+	viper.WriteConfigAs(file.Name())
+	config, err := os.ReadFile(file.Name())
+	cobra.CheckErr(err)
+	fmt.Print(string(config))
+}
+
+func performSshHosts(cmd *cobra.Command, args []string) {
+	if len(args) == 0 {
+		args = ConfigurationOptions.SshHosts
+	}
+	err := config.AddSshHosts(DistributionName, args)
+	cobra.CheckErr(err)
 }
