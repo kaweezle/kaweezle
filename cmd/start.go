@@ -20,6 +20,7 @@ import (
 	"time"
 
 	"github.com/kaweezle/kaweezle/pkg/cluster"
+	"github.com/kaweezle/kaweezle/pkg/config"
 	"github.com/kaweezle/kaweezle/pkg/k8s"
 	"github.com/kaweezle/kaweezle/pkg/rootfs"
 	"github.com/kaweezle/kaweezle/pkg/wsl"
@@ -28,6 +29,7 @@ import (
 	"k8s.io/apimachinery/pkg/util/runtime"
 
 	"github.com/spf13/cobra"
+	"github.com/spf13/pflag"
 )
 
 const (
@@ -35,23 +37,35 @@ const (
 )
 
 var (
-	ClusterWaitTimeout = DefaultClusterWaitTimeout
+	ClusterWaitTimeout   = DefaultClusterWaitTimeout
+	ConfigurationOptions = config.NewConfigurationOptions()
 )
 
-// startCmd represents the start command
-var startCmd = &cobra.Command{
-	Use:   "start",
-	Short: "Start the cluster",
-	Long:  `Start the cluster when it is not started.`,
-	Run:   performStart,
-}
-
-func init() {
-	rootCmd.AddCommand(startCmd)
+// NewStartCommand creates a new start command
+func NewStartCommand() *cobra.Command {
+	startCmd := &cobra.Command{
+		Use:   "start",
+		Short: "Start the cluster",
+		Long:  `Start the cluster when it is not started.`,
+		Run:   performStart,
+	}
 	flags := startCmd.Flags()
 
 	flags.StringVarP(&rootfs.TarFilePath, "root", "r", rootfs.DefaultTarFilePath, "The root file system to install")
 	flags.IntVarP(&ClusterWaitTimeout, "timeout", "t", DefaultClusterWaitTimeout, "The time (in seconds) to wait for the cluster to settle")
+	AddConfigurationFlags(flags, ConfigurationOptions)
+
+	return startCmd
+}
+
+func AddConfigurationFlags(flags *pflag.FlagSet, options *config.ConfigurationOptions) {
+
+	flags.StringVar(&options.AgeKeyFile, "age-key-file", options.AgeKeyFile, "The path to the age key file")
+	flags.StringVar(&options.SshKeyFile, "ssh-key-file", options.SshKeyFile, "The path to the ssh key file")
+	flags.StringVar(&options.KustomizeUrl, "kustomize-url", options.KustomizeUrl, "The URL to the kustomization to perform on start (default none)")
+	flags.StringVar(&options.PersistentIPAddress, "ip-address", options.PersistentIPAddress, "The persistent IP address to use for the WSL distribution")
+	flags.StringArrayVar(&options.DomainNames, "domain-name", options.DomainNames, "Domain names to associate locally with the cluster")
+	flags.StringArrayVar(&options.SshHosts, "ssh-hosts", options.SshHosts, "Hosts to add to the ~/.ssh/known_hosts file")
 }
 
 func performStart(cmd *cobra.Command, args []string) {
@@ -72,6 +86,7 @@ func performStart(cmd *cobra.Command, args []string) {
 			installationDir, err := rootfs.EnsureWSLDirectory(rootfs.HomeDir, DistributionName)
 			cobra.CheckErr(err)
 			cobra.CheckErr(wsl.RegisterDistribution(DistributionName, rootfs.TarFilePath, installationDir))
+			cobra.CheckErr(config.Configure(DistributionName, ConfigurationOptions))
 			status = cluster.Installed
 		}
 		if status != cluster.Installed {
@@ -82,8 +97,12 @@ func performStart(cmd *cobra.Command, args []string) {
 	}
 	if ClusterWaitTimeout > 0 {
 		runtime.ErrorHandlers = runtime.ErrorHandlers[:0]
-		cobra.CheckErr(cluster.WaitForCluster(DistributionName, time.Second*time.Duration(ClusterWaitTimeout)))
+		err = cluster.WaitForCluster(DistributionName, time.Second*time.Duration(ClusterWaitTimeout))
+		if err != nil {
+			log.WithError(err).WithField("distrib_name", DistributionName).Infof("To continue waiting, issue the following command: %s status -w", commandName)
+		}
 	} else {
 		log.WithField("distrib_name", DistributionName).Info("No wait for cluster settling")
 	}
+
 }

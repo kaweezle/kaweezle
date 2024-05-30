@@ -5,7 +5,7 @@ Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
 You may obtain a copy of the License at
 
-    http://www.apache.org/licenses/LICENSE-2.0
+	http://www.apache.org/licenses/LICENSE-2.0
 
 Unless required by applicable law or agreed to in writing, software
 distributed under the License is distributed on an "AS IS" BASIS,
@@ -66,7 +66,7 @@ func RemoveKubernetesConfig(distributionName string) (err error) {
 		delete(config.Contexts, distributionName)
 		delete(config.AuthInfos, distributionName)
 		if config.CurrentContext == distributionName {
-			for k, _ := range config.Contexts {
+			for k := range config.Contexts {
 				config.CurrentContext = k
 				break
 			}

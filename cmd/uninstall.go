@@ -5,7 +5,7 @@ Licensed under the Apache License, Version 2.0 (the "License");
 you may not use this file except in compliance with the License.
 You may obtain a copy of the License at
 
-    http://www.apache.org/licenses/LICENSE-2.0
+	http://www.apache.org/licenses/LICENSE-2.0
 
 Unless required by applicable law or agreed to in writing, software
 distributed under the License is distributed on an "AS IS" BASIS,
@@ -18,6 +18,7 @@ package cmd
 import (
 	"fmt"
 
+	"github.com/kaweezle/kaweezle/pkg/cluster"
 	"github.com/kaweezle/kaweezle/pkg/k8s"
 	"github.com/kaweezle/kaweezle/pkg/rootfs"
 	"github.com/pterm/pterm"
@@ -26,19 +27,17 @@ import (
 	"github.com/yuk7/wsllib-go"
 )
 
-// uninstallCmd represents the uninstall command
-var uninstallCmd = &cobra.Command{
-	Use:   "uninstall",
-	Short: "Uninstall the distribution",
-	Long: `Uninstalls the distribution. For example:
-
-> kaweezle uninstall
-`,
-	Run: performUninstall,
-}
-
-func init() {
-	rootCmd.AddCommand(uninstallCmd)
+func NewUninstallCommand() *cobra.Command {
+	uninstallCmd := &cobra.Command{
+		Use:   "uninstall",
+		Short: "Uninstall the distribution",
+		Long: `Uninstalls the distribution. For example:
+	
+	> kaweezle uninstall
+	`,
+		Run: performUninstall,
+	}
+	return uninstallCmd
 }
 
 func performUninstall(cmd *cobra.Command, args []string) {
@@ -46,6 +45,10 @@ func performUninstall(cmd *cobra.Command, args []string) {
 		cobra.CheckErr(fmt.Sprintf("The distribution %s is not registered.", DistributionName))
 	}
 
+	log.WithFields(log.Fields{
+		"distrib_name": DistributionName,
+	}).Infof("Stop cluster on %s if Running", pterm.Bold.Sprint(DistributionName))
+	cluster.StopCluster(DistributionName)
 	log.WithFields(log.Fields{
 		"distrib_name": DistributionName,
 	}).Infof("Uninstall %s WSL distribution", pterm.Bold.Sprint(DistributionName))
