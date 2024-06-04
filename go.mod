@@ -21,7 +21,7 @@ require (
 	github.com/txn2/txeh v1.5.5
 	github.com/yuk7/wsllib-go v1.0.0
 	golang.org/x/sys v0.18.0
-	golang.org/x/text v0.14.0
+	golang.org/x/text v0.16.0
 	google.golang.org/grpc v1.64.0
 	google.golang.org/protobuf v1.34.1
 	k8s.io/api v0.30.1
@@ -95,7 +95,7 @@ require (
 	golang.org/x/exp v0.0.0-20220909182711-5c715a9e8561 // indirect
 	golang.org/x/net v0.23.0 // indirect
 	golang.org/x/oauth2 v0.18.0 // indirect
-	golang.org/x/sync v0.6.0 // indirect
+	golang.org/x/sync v0.7.0 // indirect
 	golang.org/x/term v0.18.0 // indirect
 	golang.org/x/time v0.3.0 // indirect
 	google.golang.org/appengine v1.6.8 // indirect
