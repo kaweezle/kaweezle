@@ -8,6 +8,7 @@ option go_package="github.com/kaweezle/kaweezle/pkg/config";
 
 service ElevatedConfiguration {
   rpc AddRoute(AddRouteRequest) returns (AddRouteResponse) {}
+  rpc RemoveRoute(RemoveRouteRequest) returns (RemoveRouteResponse) {}
   rpc ConfigureDomains(ConfigureDomainsRequest) returns (ConfigureDomainsResponse) {}
   rpc Stop(StopRequest) returns (StopResponse) {}
 }
@@ -19,6 +20,14 @@ message AddRouteRequest {
 }
 
 message AddRouteResponse {
+
+}
+
+message RemoveRouteRequest {
+    string fixedAddress = 1;
+}
+
+message RemoveRouteResponse {
 
 }
 

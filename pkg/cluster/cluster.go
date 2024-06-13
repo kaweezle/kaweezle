@@ -77,7 +77,15 @@ func GetClusterStatus(distributionName string) (status ClusterStatus, err error)
 				"distribution_name": distributionName,
 			}).Trace("Found distribution")
 			if distribution.State == wsl.Running {
-				status = Started
+				var exists bool
+				exists, err = wsl.FileExists(distributionName, "/run/openrc/started/iknite")
+				if err != nil {
+					return
+				}
+
+				if exists {
+					status = Started
+				}
 			}
 		} else {
 			log.WithError(err).WithField("distribution_name", distributionName).Warning("Couldn't get distribution")

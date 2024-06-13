@@ -30,6 +30,8 @@ import (
 )
 
 var RemoveDomains bool
+var ForceDomains bool
+var RemoveRoute bool
 
 // NewConfigureCommand creates a new configure command
 func NewConfigureCommand() *cobra.Command {
@@ -130,6 +132,10 @@ This command will add the ssh hosts to the ~/.ssh/known_hosts file.`,
 	flags = domainsCommand.Flags()
 	flags.StringVar(&ConfigurationOptions.PersistentIPAddress, "ip-address", ConfigurationOptions.PersistentIPAddress, "The persistent IP address to use for the WSL distribution")
 	flags.BoolVarP(&RemoveDomains, "remove", "r", false, "Remove the domain names")
+	flags.BoolVarP(&ForceDomains, "force", "f", false, "Remove the domain names")
+
+	flags = routeCmd.Flags()
+	flags.BoolVarP(&RemoveRoute, "remove", "r", false, "Remove the route")
 
 	return configureCmd
 }
@@ -147,7 +153,7 @@ func performRoute(cmd *cobra.Command, args []string) {
 	if len(args) == 1 {
 		ConfigurationOptions.PersistentIPAddress = args[0]
 	}
-	cobra.CheckErr(config.RouteToWSL(DistributionName, ConfigurationOptions.PersistentIPAddress))
+	cobra.CheckErr(config.RouteToWSL(DistributionName, ConfigurationOptions.PersistentIPAddress, RemoveRoute))
 }
 
 func performAge(cmd *cobra.Command, args []string) {
@@ -172,6 +178,9 @@ func performKustomize(cmd *cobra.Command, args []string) {
 }
 
 func performDomains(cmd *cobra.Command, args []string) {
+	if ForceDomains {
+		args = viper.GetStringSlice("domain_name")
+	}
 	var err error
 	_, err = config.ConfigureDomains(DistributionName, ConfigurationOptions.PersistentIPAddress, args, RemoveDomains)
 

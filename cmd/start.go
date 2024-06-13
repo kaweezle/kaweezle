@@ -86,12 +86,12 @@ func performStart(cmd *cobra.Command, args []string) {
 			installationDir, err := rootfs.EnsureWSLDirectory(rootfs.HomeDir, DistributionName)
 			cobra.CheckErr(err)
 			cobra.CheckErr(wsl.RegisterDistribution(DistributionName, rootfs.TarFilePath, installationDir))
-			cobra.CheckErr(config.Configure(DistributionName, ConfigurationOptions))
 			status = cluster.Installed
 		}
 		if status != cluster.Installed {
 			log.Fatalf("Cluster %s in bad status: %v", DistributionName, status)
 		}
+		cobra.CheckErr(config.Configure(DistributionName, ConfigurationOptions))
 		cobra.CheckErr(cluster.StartCluster(DistributionName, LogLevel))
 		cobra.CheckErr(k8s.MergeKubernetesConfig(DistributionName))
 	}

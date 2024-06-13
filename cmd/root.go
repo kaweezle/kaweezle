@@ -56,7 +56,7 @@ func NewKaweezleCommand() *cobra.Command {
 kaweezle status
 kaweezle -v debug start
 `,
-		Version: "v0.3.15", // <---VERSION--->
+		Version: "v0.3.16", // <---VERSION--->
 		// Uncomment the following line if your bare application
 		// has an action associated with it:
 		// Run: func(cmd *cobra.Command, args []string) { },

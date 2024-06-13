@@ -1,17 +1,15 @@
 name: Go
 
-on: [push, pull_request]
+on: [push]
 
 jobs:
-
   build:
     name: Build
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        os: [ windows-latest ]
+        os: [windows-latest]
     steps:
-
       - name: Set up Go 1.x
         uses: actions/setup-go@v2
         with:
