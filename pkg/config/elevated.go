@@ -34,6 +34,15 @@ func (ec ElevatedConfigurationServerImpl) AddRoute(ctx context.Context, r *AddRo
 	return &AddRouteResponse{}, nil
 
 }
+
+func (ec ElevatedConfigurationServerImpl) RemoveRoute(ctx context.Context, r *RemoveRouteRequest) (*RemoveRouteResponse, error) {
+	err := removeRoute(r.FixedAddress)
+	if err != nil {
+		return nil, status.Errorf(codes.Unknown, err.Error())
+	}
+	return &RemoveRouteResponse{}, nil
+}
+
 func (ec ElevatedConfigurationServerImpl) ConfigureDomains(ctx context.Context, r *ConfigureDomainsRequest) (*ConfigureDomainsResponse, error) {
 	logrus.WithFields(logrus.Fields{
 		"distribution_name": r.DistributionName,

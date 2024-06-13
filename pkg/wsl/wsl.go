@@ -34,6 +34,7 @@ import (
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/afero"
 	"github.com/yuk7/wsllib-go"
+	"golang.org/x/sys/windows/registry"
 )
 
 type DistributionState int16
@@ -270,6 +271,15 @@ func RegisterDistribution(name string, rootfs string, path string) (err error) {
 	return
 }
 
+func FileExists(distributionName string, path string) (bool, error) {
+	script := fmt.Sprintf("[ -f \"%s\" ] && echo yes || echo no", path)
+	out, err := exec.Command(FindWSL(), "-d", distributionName, "-u", "root", "/bin/sh", "-c", script).Output()
+	if err != nil {
+		return false, errors.Wrapf(err, "error while checking if file %s exists in distribution %s", path, distributionName)
+	}
+	return string(out) == "yes\n", nil
+}
+
 func CopyFileToDistribution(distributionName string, source string, destination string, commands ...string) error {
 
 	exist, err := afs.Exists(source)
@@ -317,4 +327,28 @@ func FirewallInterface(distributionName string) (string, error) {
 	} else {
 		return "", fmt.Errorf("no nameserver found in %s", resolvFilename)
 	}
+}
+
+func GetRegistryStringValue(base registry.Key, registryKey, value string) (string, error) {
+	var access uint32 = registry.QUERY_VALUE
+	regKey, err := registry.OpenKey(base, registryKey, access)
+	if err != nil {
+		return "", err
+	}
+
+	id, _, err := regKey.GetStringValue(value)
+	if err != nil {
+		return "", err
+	}
+
+	return id, nil
+}
+
+func GetNatGatewayIpAddress() (string, error) {
+
+	ip, error := GetRegistryStringValue(registry.LOCAL_MACHINE, `SOFTWARE\Microsoft\Windows\CurrentVersion\Lxss`, "NatGatewayIpAddress")
+	if error != nil {
+		return "", errors.Wrap(error, "error while reading NatGatewayIpAddress")
+	}
+	return ip, nil
 }

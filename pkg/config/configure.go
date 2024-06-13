@@ -91,7 +91,7 @@ func Configure(distributionName string, options *ConfigurationOptions) error {
 		return errors.Wrap(err, "failed to add ssh hosts")
 	}
 
-	err = RouteToWSL(distributionName, options.PersistentIPAddress)
+	err = RouteToWSL(distributionName, options.PersistentIPAddress, false)
 	if err != nil {
 		return errors.Wrap(err, "failed to add route")
 	}
@@ -107,6 +107,39 @@ func Configure(distributionName string, options *ConfigurationOptions) error {
 }
 
 func ConfigureDomains(distributionName, ipAddress string, domains []string, remove bool) ([]string, error) {
+	if len(domains) > 0 && !remove {
+		// Check if the configuration is already done
+		hosts, err := txeh.NewHostsDefault()
+		if err != nil {
+			return nil, errors.Wrap(err, "failed to get hosts file")
+		}
+		allHere := true
+		for _, domain := range domains {
+			mappings := hosts.ListAddressesByHost(domain, true)
+			if len(mappings) > 0 {
+				mapped := false
+				for _, mapping := range mappings {
+					if mapping[0] == ipAddress {
+						mapped = true
+						break
+					}
+				}
+				if !mapped {
+					allHere = false
+				}
+			} else {
+				allHere = false
+			}
+			if !allHere {
+				break
+			}
+		}
+		if allHere {
+			log.WithField("hosts", domains).Info("Hosts already configured")
+			return domains, nil
+		}
+	}
+
 	if IsAdmin() {
 		hosts, err := txeh.NewHostsDefault()
 		if err != nil {
@@ -163,12 +196,20 @@ func ConfigureDomains(distributionName, ipAddress string, domains []string, remo
 	return domains, nil
 }
 
+const ssh_hosts_script = `
+if ! [ -f /root/.ssh/known_hosts ]; then
+	mkdir -p /root/.ssh
+	ssh-keyscan %s > /root/.ssh/known_hosts
+	chmod 600 /root/.ssh/known_hosts
+fi
+`
+
 func AddSshHosts(distributionName string, sshHosts []string) error {
 	if len(sshHosts) == 0 {
 		return nil
 	}
 	hosts := strings.Join(sshHosts, " ")
-	output, err := wsl.WslCommand(distributionName, "sh", "-c", fmt.Sprintf("mkdir -p /root/.ssh; ssh-keyscan %s > /root/.ssh/known_hosts; chmod 600 /root/.ssh/known_hosts; ", hosts))
+	output, err := wsl.WslCommand(distributionName, "sh", "-c", fmt.Sprintf(ssh_hosts_script, hosts))
 	if err != nil {
 		err = errors.Wrapf(err, "failed to add ssh hosts %s", output)
 	}

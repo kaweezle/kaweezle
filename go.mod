@@ -9,6 +9,7 @@ require (
 	github.com/bitfield/script v0.22.1
 	github.com/dustin/go-humanize v1.0.1
 	github.com/kyokomi/emoji v2.2.4+incompatible
+	github.com/libp2p/go-netroute v0.2.1
 	github.com/pkg/errors v0.9.1
 	github.com/pterm/pterm v0.12.55
 	github.com/samber/lo v1.39.0
@@ -55,6 +56,7 @@ require (
 	github.com/google/gnostic-models v0.6.8 // indirect
 	github.com/google/go-cmp v0.6.0 // indirect
 	github.com/google/gofuzz v1.2.0 // indirect
+	github.com/google/gopacket v1.1.19 // indirect
 	github.com/google/shlex v0.0.0-20191202100458-e7afc7fbc510 // indirect
 	github.com/google/uuid v1.6.0 // indirect
 	github.com/gookit/color v1.5.2 // indirect
