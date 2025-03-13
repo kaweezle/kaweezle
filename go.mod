@@ -21,7 +21,7 @@ require (
 	github.com/stretchr/testify v1.9.0
 	github.com/txn2/txeh v1.5.5
 	github.com/yuk7/wsllib-go v1.0.0
-	golang.org/x/sys v0.21.0
+	golang.org/x/sys v0.24.0
 	golang.org/x/text v0.16.0
 	google.golang.org/grpc v1.64.0
 	google.golang.org/protobuf v1.34.2
