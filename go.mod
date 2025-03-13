@@ -2,7 +2,7 @@ module github.com/kaweezle/kaweezle
 
 go 1.22.0
 
-toolchain go1.22.3
+toolchain go1.24.1
 
 require (
 	github.com/Microsoft/go-winio v0.6.2
